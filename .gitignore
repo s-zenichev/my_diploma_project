@@ -1,0 +1,12 @@
+.vscode
+/install
+/log
+/build
+/src/BRTSIM
+/src/Hardware
+**/__pycache__
+/rosbag_files
+*.o
+/docs/xml-dir
+/docs/rst-dir
+/docs/html-dir
