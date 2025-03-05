@@ -1,5 +1,7 @@
 <?xml version='1.0' ?>
 <launch>
+<!-- Start world -->
+<include file="$(find-pkg-share puma560_gazebo)/launch/start_world.launch.py"/>
 <!-- Publish URDF file in robot_description topic -->
 <include file="$(find-pkg-share puma560_description)/launch/publish_urdf.launch.py"/>
 <!-- Read robot_description an dspawn in gazebo running sim -->
