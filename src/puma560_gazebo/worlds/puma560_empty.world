@@ -4,10 +4,10 @@
     <world name="default">
 
         <include>
-            <url>model://sun</url>
+            <uri>model://sun</uri>
         </include>
         <include>
-            <url>model://ground_plane</url>
+            <uri>model://ground_plane</uri>
         </include>
 
     </world>
