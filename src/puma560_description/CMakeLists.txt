@@ -11,6 +11,7 @@ find_package(rclpy REQUIRED)
 find_package(gazebo_ros REQUIRED)
 find_package(puma560_gazebo REQUIRED)
 find_package(urdf REQUIRED)
+find_package(sensor_msgs REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -24,11 +25,11 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-add_executable(joint_publisher src/joint_publisher.cpp)
-ament_target_dependencies(joint_publisher rclcpp std_msgs)
+add_executable(control_system src/control_system.cpp)
+ament_target_dependencies(control_system rclcpp std_msgs sensor_msgs)
 
 install(TARGETS
-  joint_publisher
+  control_system
   DESTINATION lib/${PROJECT_NAME})
 
 install(
