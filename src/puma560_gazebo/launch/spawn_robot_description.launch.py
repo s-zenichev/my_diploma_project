@@ -8,7 +8,6 @@ def generate_launch_description():
     orientation = [0.0, 0.0, 0.0]
     robot_name = "puma560"
 
-    print("func started")
 
     spawn_robot = Node(
         package='gazebo_ros',
@@ -20,8 +19,6 @@ def generate_launch_description():
                    '-R', str(orientation[0]), '-P', str(orientation[1]), '-Y', str(orientation[2]),
                    '-topic', '/robot_description']
     )
-
-    print("Node acepted")
 
     return LaunchDescription(
         [

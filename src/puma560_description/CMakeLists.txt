@@ -24,8 +24,16 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
+add_executable(joint_publisher src/joint_publisher.cpp)
+ament_target_dependencies(joint_publisher rclcpp std_msgs)
+
+install(TARGETS
+  joint_publisher
+  DESTINATION lib/${PROJECT_NAME})
+
 install(
   DIRECTORY
+    config
     launch
     urdf
     meshes
