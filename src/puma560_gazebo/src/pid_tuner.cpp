@@ -44,6 +44,7 @@ void func(){
 
  }
 
+
 int main(int argc, char * argv[])
 {
     rclcpp::init(argc, argv);
@@ -55,7 +56,8 @@ int main(int argc, char * argv[])
     QObject::connect(ui.publishPID, &QPushButton::released, func);
     window.show();
     app.exec();
-    //rclcpp::spin(node);
+    rclcpp::spin_some(node);
+    node.reset();
     rclcpp::shutdown();
     return 0;
 }

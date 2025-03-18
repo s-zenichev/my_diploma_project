@@ -1,13 +1,13 @@
 /********************************************************************************
-** Form generated from reading UI file 'pid_tunerBrHiaU.ui'
+** Form generated from reading UI file 'pid_tunerSJiRIK.ui'
 **
 ** Created by: Qt User Interface Compiler version 5.15.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef PID_TUNERBRHIAU_H
-#define PID_TUNERBRHIAU_H
+#ifndef PID_TUNERSJIRIK_H
+#define PID_TUNERSJIRIK_H
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
@@ -19,6 +19,7 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QRadioButton>
+#include <QtWidgets/QSpinBox>
 #include <QtWidgets/QWidget>
 
 QT_BEGIN_NAMESPACE
@@ -53,6 +54,8 @@ public:
     QLabel *label_7;
     QRadioButton *radioButton_2;
     QLabel *label_9;
+    QSpinBox *jointNumber;
+    QLabel *label_10;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -189,6 +192,16 @@ public:
 
         gridLayout->addWidget(label_9, 7, 7, 1, 2);
 
+        jointNumber = new QSpinBox(layoutWidget);
+        jointNumber->setObjectName(QString::fromUtf8("jointNumber"));
+
+        gridLayout->addWidget(jointNumber, 1, 8, 1, 1);
+
+        label_10 = new QLabel(layoutWidget);
+        label_10->setObjectName(QString::fromUtf8("label_10"));
+
+        gridLayout->addWidget(label_10, 1, 5, 1, 1);
+
         MainWindow->setCentralWidget(centralwidget);
 
         retranslateUi(MainWindow);
@@ -216,6 +229,7 @@ public:
         label_7->setText(QCoreApplication::translate("MainWindow", "Second val", nullptr));
         radioButton_2->setText(QString());
         label_9->setText(QCoreApplication::translate("MainWindow", "seconds", nullptr));
+        label_10->setText(QCoreApplication::translate("MainWindow", "Joint #", nullptr));
     } // retranslateUi
 
 };
@@ -226,4 +240,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // PID_TUNERBRHIAU_H
+#endif // PID_TUNERSJIRIK_H

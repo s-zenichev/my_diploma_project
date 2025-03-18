@@ -3,10 +3,6 @@ project(puma560_gazebo)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-#set(CMAKE_AUTOUIC ON)
-#set(CMAKE_AUTOMOC ON)
-
-
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
   add_compile_options(-Wall -Wextra -Wpedantic)
 endif()
@@ -19,9 +15,6 @@ find_package(gazebo_ros REQUIRED)
 find_package(puma560_description REQUIRED)
 find_package(rclcpp REQUIRED)
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -36,7 +29,6 @@ if(BUILD_TESTING)
 endif()
 
 set (PROJECT_SOURCES
-    include/pid_tuner.ui
     include/ui_pid_tuner.h
     src/pid_tuner.cpp)
 
