@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>492</width>
+    <height>322</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>PID_tuner</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="layoutWidget">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>10</y>
+      <width>471</width>
+      <height>301</height>
+     </rect>
+    </property>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="1" colspan="7">
+      <widget class="QLineEdit" name="pidTopic">
+       <property name="text">
+        <string>/</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0" colspan="2">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>Control topic</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Filter const</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>D</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="8">
+      <widget class="QPushButton" name="publishControl">
+       <property name="text">
+        <string>Publish</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="5">
+      <widget class="QDoubleSpinBox" name="switchTime"/>
+     </item>
+     <item row="3" column="1" colspan="2">
+      <widget class="QDoubleSpinBox" name="derivative"/>
+     </item>
+     <item row="6" column="0">
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>First val</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" colspan="2">
+      <widget class="QDoubleSpinBox" name="integral"/>
+     </item>
+     <item row="1" column="1" colspan="2">
+      <widget class="QDoubleSpinBox" name="proportional"/>
+     </item>
+     <item row="5" column="2" colspan="2">
+      <widget class="QLineEdit" name="controlTopic">
+       <property name="text">
+        <string>/</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>I</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="5" colspan="4">
+      <widget class="QCheckBox" name="autoSwitch">
+       <property name="text">
+        <string>Auto switch</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_2">
+       <property name="text">
+        <string>P</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="3" colspan="2">
+      <widget class="QRadioButton" name="radioButton">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="2">
+      <widget class="QDoubleSpinBox" name="secondValue"/>
+     </item>
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Topic name</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="4" colspan="4">
+      <widget class="QCheckBox" name="autoPublish">
+       <property name="text">
+        <string>AutoPublish</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="2">
+      <widget class="QDoubleSpinBox" name="firstValue"/>
+     </item>
+     <item row="0" column="8">
+      <widget class="QPushButton" name="publishPID">
+       <property name="text">
+        <string>Publish</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1" colspan="2">
+      <widget class="QDoubleSpinBox" name="filterConst"/>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>Second val</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="3" colspan="2">
+      <widget class="QRadioButton" name="radioButton_2">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="7" colspan="2">
+      <widget class="QLabel" name="label_9">
+       <property name="text">
+        <string>seconds</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </widget>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
