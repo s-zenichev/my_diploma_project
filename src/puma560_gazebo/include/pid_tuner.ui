@@ -27,7 +27,7 @@
      <item row="0" column="1" colspan="7">
       <widget class="QLineEdit" name="pidTopic">
        <property name="text">
-        <string>/</string>
+        <string>/joint0_pid</string>
        </property>
       </widget>
      </item>
@@ -59,9 +59,6 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="5">
-      <widget class="QDoubleSpinBox" name="switchTime"/>
-     </item>
      <item row="3" column="1" colspan="2">
       <widget class="QDoubleSpinBox" name="derivative"/>
      </item>
@@ -81,7 +78,7 @@
      <item row="5" column="2" colspan="2">
       <widget class="QLineEdit" name="controlTopic">
        <property name="text">
-        <string>/</string>
+        <string>/effort_controller/commands</string>
        </property>
       </widget>
      </item>
@@ -166,17 +163,31 @@
      <item row="7" column="7" colspan="2">
       <widget class="QLabel" name="label_9">
        <property name="text">
-        <string>seconds</string>
+        <string>milliseconds</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="8">
-      <widget class="QSpinBox" name="jointNumber"/>
-     </item>
-     <item row="1" column="5">
+     <item row="4" column="5">
       <widget class="QLabel" name="label_10">
        <property name="text">
         <string>Joint #</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="8">
+      <widget class="QSpinBox" name="jointNumber">
+       <property name="maximum">
+        <number>5</number>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="5">
+      <widget class="QSpinBox" name="switchTime">
+       <property name="maximum">
+        <number>10000</number>
+       </property>
+       <property name="value">
+        <number>1000</number>
        </property>
       </widget>
      </item>

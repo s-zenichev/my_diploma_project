@@ -1,13 +1,13 @@
 /********************************************************************************
-** Form generated from reading UI file 'pid_tunerSJiRIK.ui'
+** Form generated from reading UI file 'pid_tunerbQKbjH.ui'
 **
 ** Created by: Qt User Interface Compiler version 5.15.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef PID_TUNERSJIRIK_H
-#define PID_TUNERSJIRIK_H
+#ifndef PID_TUNERBQKBJH_H
+#define PID_TUNERBQKBJH_H
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
@@ -35,7 +35,6 @@ public:
     QLabel *label_5;
     QLabel *label_4;
     QPushButton *publishControl;
-    QDoubleSpinBox *switchTime;
     QDoubleSpinBox *derivative;
     QLabel *label_8;
     QDoubleSpinBox *integral;
@@ -54,8 +53,9 @@ public:
     QLabel *label_7;
     QRadioButton *radioButton_2;
     QLabel *label_9;
-    QSpinBox *jointNumber;
     QLabel *label_10;
+    QSpinBox *jointNumber;
+    QSpinBox *switchTime;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -94,11 +94,6 @@ public:
         publishControl->setObjectName(QString::fromUtf8("publishControl"));
 
         gridLayout->addWidget(publishControl, 5, 8, 1, 1);
-
-        switchTime = new QDoubleSpinBox(layoutWidget);
-        switchTime->setObjectName(QString::fromUtf8("switchTime"));
-
-        gridLayout->addWidget(switchTime, 7, 5, 1, 1);
 
         derivative = new QDoubleSpinBox(layoutWidget);
         derivative->setObjectName(QString::fromUtf8("derivative"));
@@ -192,15 +187,23 @@ public:
 
         gridLayout->addWidget(label_9, 7, 7, 1, 2);
 
-        jointNumber = new QSpinBox(layoutWidget);
-        jointNumber->setObjectName(QString::fromUtf8("jointNumber"));
-
-        gridLayout->addWidget(jointNumber, 1, 8, 1, 1);
-
         label_10 = new QLabel(layoutWidget);
         label_10->setObjectName(QString::fromUtf8("label_10"));
 
-        gridLayout->addWidget(label_10, 1, 5, 1, 1);
+        gridLayout->addWidget(label_10, 4, 5, 1, 1);
+
+        jointNumber = new QSpinBox(layoutWidget);
+        jointNumber->setObjectName(QString::fromUtf8("jointNumber"));
+        jointNumber->setMaximum(5);
+
+        gridLayout->addWidget(jointNumber, 4, 8, 1, 1);
+
+        switchTime = new QSpinBox(layoutWidget);
+        switchTime->setObjectName(QString::fromUtf8("switchTime"));
+        switchTime->setMaximum(10000);
+        switchTime->setValue(1000);
+
+        gridLayout->addWidget(switchTime, 7, 5, 1, 1);
 
         MainWindow->setCentralWidget(centralwidget);
 
@@ -212,13 +215,13 @@ public:
     void retranslateUi(QMainWindow *MainWindow)
     {
         MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "PID_tuner", nullptr));
-        pidTopic->setText(QCoreApplication::translate("MainWindow", "/", nullptr));
+        pidTopic->setText(QCoreApplication::translate("MainWindow", "/joint0_pid", nullptr));
         label_6->setText(QCoreApplication::translate("MainWindow", "Control topic", nullptr));
         label_5->setText(QCoreApplication::translate("MainWindow", "Filter const", nullptr));
         label_4->setText(QCoreApplication::translate("MainWindow", "D", nullptr));
         publishControl->setText(QCoreApplication::translate("MainWindow", "Publish", nullptr));
         label_8->setText(QCoreApplication::translate("MainWindow", "First val", nullptr));
-        controlTopic->setText(QCoreApplication::translate("MainWindow", "/", nullptr));
+        controlTopic->setText(QCoreApplication::translate("MainWindow", "/effort_controller/commands", nullptr));
         label_3->setText(QCoreApplication::translate("MainWindow", "I", nullptr));
         autoSwitch->setText(QCoreApplication::translate("MainWindow", "Auto switch", nullptr));
         label_2->setText(QCoreApplication::translate("MainWindow", "P", nullptr));
@@ -228,7 +231,7 @@ public:
         publishPID->setText(QCoreApplication::translate("MainWindow", "Publish", nullptr));
         label_7->setText(QCoreApplication::translate("MainWindow", "Second val", nullptr));
         radioButton_2->setText(QString());
-        label_9->setText(QCoreApplication::translate("MainWindow", "seconds", nullptr));
+        label_9->setText(QCoreApplication::translate("MainWindow", "milliseconds", nullptr));
         label_10->setText(QCoreApplication::translate("MainWindow", "Joint #", nullptr));
     } // retranslateUi
 
@@ -240,4 +243,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // PID_TUNERSJIRIK_H
+#endif // PID_TUNERBQKBJH_H
