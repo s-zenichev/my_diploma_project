@@ -1,13 +1,13 @@
 /********************************************************************************
-** Form generated from reading UI file 'pid_tunerbQKbjH.ui'
+** Form generated from reading UI file 'pid_tuneruvEjdD.ui'
 **
 ** Created by: Qt User Interface Compiler version 5.15.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef PID_TUNERBQKBJH_H
-#define PID_TUNERBQKBJH_H
+#ifndef PID_TUNERUVEJDD_H
+#define PID_TUNERUVEJDD_H
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
@@ -144,6 +144,8 @@ public:
 
         secondValue = new QDoubleSpinBox(layoutWidget);
         secondValue->setObjectName(QString::fromUtf8("secondValue"));
+        secondValue->setMinimum(-999.000000000000000);
+        secondValue->setMaximum(999.000000000000000);
 
         gridLayout->addWidget(secondValue, 7, 2, 1, 1);
 
@@ -159,6 +161,8 @@ public:
 
         firstValue = new QDoubleSpinBox(layoutWidget);
         firstValue->setObjectName(QString::fromUtf8("firstValue"));
+        firstValue->setMinimum(-999.000000000000000);
+        firstValue->setMaximum(999.000000000000000);
 
         gridLayout->addWidget(firstValue, 6, 2, 1, 1);
 
@@ -243,4 +247,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // PID_TUNERBQKBJH_H
+#endif // PID_TUNERUVEJDD_H
