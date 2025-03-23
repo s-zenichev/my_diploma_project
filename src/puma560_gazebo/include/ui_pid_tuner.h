@@ -1,13 +1,13 @@
 /********************************************************************************
-** Form generated from reading UI file 'pid_tunerOcPELL.ui'
+** Form generated from reading UI file 'pid_tunerybQDjJ.ui'
 **
 ** Created by: Qt User Interface Compiler version 5.15.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef PID_TUNEROCPELL_H
-#define PID_TUNEROCPELL_H
+#ifndef PID_TUNERYBQDJJ_H
+#define PID_TUNERYBQDJJ_H
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
@@ -28,7 +28,7 @@ class Ui_MainWindow
 {
 public:
     QWidget *centralwidget;
-    QWidget *widget;
+    QWidget *layoutWidget;
     QGridLayout *gridLayout;
     QLabel *label;
     QLineEdit *pidTopic;
@@ -64,152 +64,156 @@ public:
         MainWindow->resize(501, 379);
         centralwidget = new QWidget(MainWindow);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
-        widget = new QWidget(centralwidget);
-        widget->setObjectName(QString::fromUtf8("widget"));
-        widget->setGeometry(QRect(11, 16, 481, 351));
-        gridLayout = new QGridLayout(widget);
+        layoutWidget = new QWidget(centralwidget);
+        layoutWidget->setObjectName(QString::fromUtf8("layoutWidget"));
+        layoutWidget->setGeometry(QRect(11, 16, 481, 351));
+        gridLayout = new QGridLayout(layoutWidget);
         gridLayout->setObjectName(QString::fromUtf8("gridLayout"));
         gridLayout->setContentsMargins(0, 0, 0, 0);
-        label = new QLabel(widget);
+        label = new QLabel(layoutWidget);
         label->setObjectName(QString::fromUtf8("label"));
 
         gridLayout->addWidget(label, 0, 0, 1, 1);
 
-        pidTopic = new QLineEdit(widget);
+        pidTopic = new QLineEdit(layoutWidget);
         pidTopic->setObjectName(QString::fromUtf8("pidTopic"));
 
         gridLayout->addWidget(pidTopic, 0, 1, 1, 6);
 
-        publishPID = new QPushButton(widget);
+        publishPID = new QPushButton(layoutWidget);
         publishPID->setObjectName(QString::fromUtf8("publishPID"));
 
         gridLayout->addWidget(publishPID, 0, 7, 1, 1);
 
-        label_2 = new QLabel(widget);
+        label_2 = new QLabel(layoutWidget);
         label_2->setObjectName(QString::fromUtf8("label_2"));
 
         gridLayout->addWidget(label_2, 1, 0, 1, 1);
 
-        proportional = new QDoubleSpinBox(widget);
+        proportional = new QDoubleSpinBox(layoutWidget);
         proportional->setObjectName(QString::fromUtf8("proportional"));
+        proportional->setDecimals(5);
         proportional->setMaximum(9999.000000000000000);
 
         gridLayout->addWidget(proportional, 1, 1, 1, 3);
 
-        label_3 = new QLabel(widget);
+        label_3 = new QLabel(layoutWidget);
         label_3->setObjectName(QString::fromUtf8("label_3"));
 
         gridLayout->addWidget(label_3, 2, 0, 1, 1);
 
-        integral = new QDoubleSpinBox(widget);
+        integral = new QDoubleSpinBox(layoutWidget);
         integral->setObjectName(QString::fromUtf8("integral"));
+        integral->setDecimals(5);
         integral->setMaximum(9999.000000000000000);
 
         gridLayout->addWidget(integral, 2, 1, 1, 3);
 
-        label_4 = new QLabel(widget);
+        label_4 = new QLabel(layoutWidget);
         label_4->setObjectName(QString::fromUtf8("label_4"));
 
         gridLayout->addWidget(label_4, 3, 0, 1, 1);
 
-        derivative = new QDoubleSpinBox(widget);
+        derivative = new QDoubleSpinBox(layoutWidget);
         derivative->setObjectName(QString::fromUtf8("derivative"));
+        derivative->setDecimals(5);
         derivative->setMaximum(9999.000000000000000);
 
         gridLayout->addWidget(derivative, 3, 1, 1, 3);
 
-        label_5 = new QLabel(widget);
+        label_5 = new QLabel(layoutWidget);
         label_5->setObjectName(QString::fromUtf8("label_5"));
 
         gridLayout->addWidget(label_5, 4, 0, 1, 1);
 
-        filterConst = new QDoubleSpinBox(widget);
+        filterConst = new QDoubleSpinBox(layoutWidget);
         filterConst->setObjectName(QString::fromUtf8("filterConst"));
+        filterConst->setDecimals(5);
         filterConst->setMaximum(999.000000000000000);
-        filterConst->setValue(100.000000000000000);
+        filterConst->setValue(1.000000000000000);
 
         gridLayout->addWidget(filterConst, 4, 1, 1, 3);
 
-        label_10 = new QLabel(widget);
+        label_10 = new QLabel(layoutWidget);
         label_10->setObjectName(QString::fromUtf8("label_10"));
 
         gridLayout->addWidget(label_10, 4, 5, 1, 1);
 
-        jointNumber = new QSpinBox(widget);
+        jointNumber = new QSpinBox(layoutWidget);
         jointNumber->setObjectName(QString::fromUtf8("jointNumber"));
         jointNumber->setMaximum(5);
 
         gridLayout->addWidget(jointNumber, 4, 7, 1, 1);
 
-        label_6 = new QLabel(widget);
+        label_6 = new QLabel(layoutWidget);
         label_6->setObjectName(QString::fromUtf8("label_6"));
 
         gridLayout->addWidget(label_6, 5, 0, 1, 2);
 
-        controlTopic = new QLineEdit(widget);
+        controlTopic = new QLineEdit(layoutWidget);
         controlTopic->setObjectName(QString::fromUtf8("controlTopic"));
 
         gridLayout->addWidget(controlTopic, 5, 2, 1, 5);
 
-        publishControl = new QPushButton(widget);
+        publishControl = new QPushButton(layoutWidget);
         publishControl->setObjectName(QString::fromUtf8("publishControl"));
 
         gridLayout->addWidget(publishControl, 5, 7, 1, 1);
 
-        autoSwitch = new QCheckBox(widget);
+        autoSwitch = new QCheckBox(layoutWidget);
         autoSwitch->setObjectName(QString::fromUtf8("autoSwitch"));
 
         gridLayout->addWidget(autoSwitch, 6, 0, 1, 3);
 
-        switchTime = new QSpinBox(widget);
+        switchTime = new QSpinBox(layoutWidget);
         switchTime->setObjectName(QString::fromUtf8("switchTime"));
         switchTime->setMaximum(10000);
         switchTime->setValue(1000);
 
         gridLayout->addWidget(switchTime, 6, 3, 1, 2);
 
-        label_9 = new QLabel(widget);
+        label_9 = new QLabel(layoutWidget);
         label_9->setObjectName(QString::fromUtf8("label_9"));
 
         gridLayout->addWidget(label_9, 6, 5, 1, 1);
 
-        autoPublish = new QCheckBox(widget);
+        autoPublish = new QCheckBox(layoutWidget);
         autoPublish->setObjectName(QString::fromUtf8("autoPublish"));
 
         gridLayout->addWidget(autoPublish, 6, 6, 1, 2);
 
-        label_8 = new QLabel(widget);
+        label_8 = new QLabel(layoutWidget);
         label_8->setObjectName(QString::fromUtf8("label_8"));
 
         gridLayout->addWidget(label_8, 7, 0, 1, 1);
 
-        firstValue = new QDoubleSpinBox(widget);
+        firstValue = new QDoubleSpinBox(layoutWidget);
         firstValue->setObjectName(QString::fromUtf8("firstValue"));
         firstValue->setMinimum(-999.000000000000000);
         firstValue->setMaximum(999.000000000000000);
 
         gridLayout->addWidget(firstValue, 7, 3, 1, 1);
 
-        radioButton = new QRadioButton(widget);
+        radioButton = new QRadioButton(layoutWidget);
         radioButton->setObjectName(QString::fromUtf8("radioButton"));
         radioButton->setEnabled(true);
         radioButton->setChecked(true);
 
         gridLayout->addWidget(radioButton, 7, 4, 1, 1);
 
-        label_7 = new QLabel(widget);
+        label_7 = new QLabel(layoutWidget);
         label_7->setObjectName(QString::fromUtf8("label_7"));
 
         gridLayout->addWidget(label_7, 8, 0, 1, 1);
 
-        secondValue = new QDoubleSpinBox(widget);
+        secondValue = new QDoubleSpinBox(layoutWidget);
         secondValue->setObjectName(QString::fromUtf8("secondValue"));
         secondValue->setMinimum(-999.000000000000000);
         secondValue->setMaximum(999.000000000000000);
 
         gridLayout->addWidget(secondValue, 8, 3, 1, 1);
 
-        radioButton_2 = new QRadioButton(widget);
+        radioButton_2 = new QRadioButton(layoutWidget);
         radioButton_2->setObjectName(QString::fromUtf8("radioButton_2"));
 
         gridLayout->addWidget(radioButton_2, 8, 4, 1, 1);
@@ -252,4 +256,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // PID_TUNEROCPELL_H
+#endif // PID_TUNERYBQDJJ_H

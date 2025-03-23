@@ -11,6 +11,9 @@ using std::placeholders::_1;
 
 Ui::MainWindow ui;
 QTimer *timer = new QTimer();
+QTimer *timer2 = new QTimer();
+bool pid_topic_changed = true;
+bool control_topic_changed = true;
 
 class PidTuner : public rclcpp::Node
 {
@@ -22,9 +25,12 @@ public:
 
     void publishPID()
     {
-        if (pid_publisher_ != nullptr) pid_publisher_.reset();
-        pid_publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
-            ui.pidTopic->text().toStdString(), 10);
+        if(pid_topic_changed){
+            if (pid_publisher_ != nullptr) pid_publisher_.reset();
+            pid_publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
+                ui.pidTopic->text().toStdString(), 10);
+                pid_topic_changed = false;
+        }
 
         auto message = std_msgs::msg::Float64MultiArray();
 
@@ -40,9 +46,12 @@ public:
 
     void publishControl()
     {
-        if (control_publisher_ != nullptr) control_publisher_.reset(); //Костыль! Добавить проверку на изменение топика
-        control_publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
-            ui.controlTopic->text().toStdString(), 10);
+        if(control_topic_changed){
+            if (control_publisher_ != nullptr) control_publisher_.reset();
+            control_publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
+                ui.controlTopic->text().toStdString(), 10);
+            control_topic_changed = false;
+        }
 
         auto message = std_msgs::msg::Float64MultiArray();
 
@@ -55,7 +64,6 @@ public:
     }
 private:
     
-    rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr pid_publisher_;
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr control_publisher_;
     size_t count_;
@@ -80,11 +88,19 @@ void pubPID(){
         if(ui.radioButton->isChecked()) ui.radioButton_2->click();
         else ui.radioButton->click();
     }
+ }
+
+ void timer2Callback(){
     if (ui.autoPublish->isChecked()) node->publishControl();
  }
 
  void updateTimer(){
     timer->start(ui.switchTime->value());
+ }
+
+ void topic_changed(){
+    pid_topic_changed = true;
+    control_topic_changed = true;
  }
 
 
@@ -98,8 +114,12 @@ int main(int argc, char * argv[])
     QObject::connect(ui.publishPID, &QPushButton::released, pubPID);
     QObject::connect(ui.publishControl, &QPushButton::released, pubControl);
     QObject::connect(timer, &QTimer::timeout, timerCallback);
+    QObject::connect(timer2, &QTimer::timeout, timer2Callback);
     QObject::connect(ui.switchTime, &QSpinBox::textChanged, updateTimer);
+    QObject::connect(ui.controlTopic, &QLineEdit::editingFinished, topic_changed);
+    QObject::connect(ui.pidTopic, &QLineEdit::editingFinished, topic_changed);
     timer->start(ui.switchTime->value());
+    timer2->start(10);
     window.show();
     app.exec();
     rclcpp::spin_some(node);
