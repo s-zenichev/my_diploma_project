@@ -6,93 +6,42 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>492</width>
-    <height>322</height>
+    <width>501</width>
+    <height>379</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>PID_tuner</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QWidget" name="layoutWidget">
+   <widget class="QWidget" name="">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>10</y>
-      <width>471</width>
-      <height>301</height>
+      <x>11</x>
+      <y>16</y>
+      <width>481</width>
+      <height>351</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout">
-     <item row="0" column="1" colspan="7">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Topic name</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1" colspan="6">
       <widget class="QLineEdit" name="pidTopic">
        <property name="text">
-        <string>/joint0_pid</string>
+        <string>/pid_values</string>
        </property>
       </widget>
      </item>
-     <item row="5" column="0" colspan="2">
-      <widget class="QLabel" name="label_6">
-       <property name="text">
-        <string>Control topic</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0">
-      <widget class="QLabel" name="label_5">
-       <property name="text">
-        <string>Filter const</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0">
-      <widget class="QLabel" name="label_4">
-       <property name="text">
-        <string>D</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="8">
-      <widget class="QPushButton" name="publishControl">
+     <item row="0" column="7">
+      <widget class="QPushButton" name="publishPID">
        <property name="text">
         <string>Publish</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="1" colspan="2">
-      <widget class="QDoubleSpinBox" name="derivative"/>
-     </item>
-     <item row="6" column="0">
-      <widget class="QLabel" name="label_8">
-       <property name="text">
-        <string>First val</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1" colspan="2">
-      <widget class="QDoubleSpinBox" name="integral"/>
-     </item>
-     <item row="1" column="1" colspan="2">
-      <widget class="QDoubleSpinBox" name="proportional"/>
-     </item>
-     <item row="5" column="2" colspan="2">
-      <widget class="QLineEdit" name="controlTopic">
-       <property name="text">
-        <string>/effort_controller/commands</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="0">
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>I</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="5" colspan="4">
-      <widget class="QCheckBox" name="autoSwitch">
-       <property name="text">
-        <string>Auto switch</string>
        </property>
       </widget>
      </item>
@@ -103,7 +52,142 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="1" colspan="3">
+      <widget class="QDoubleSpinBox" name="proportional">
+       <property name="maximum">
+        <double>9999.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>I</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1" colspan="3">
+      <widget class="QDoubleSpinBox" name="integral">
+       <property name="maximum">
+        <double>9999.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>D</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1" colspan="3">
+      <widget class="QDoubleSpinBox" name="derivative">
+       <property name="maximum">
+        <double>9999.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Filter const</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1" colspan="3">
+      <widget class="QDoubleSpinBox" name="filterConst">
+       <property name="maximum">
+        <double>999.000000000000000</double>
+       </property>
+       <property name="value">
+        <double>100.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="5">
+      <widget class="QLabel" name="label_10">
+       <property name="text">
+        <string>Joint #</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="7">
+      <widget class="QSpinBox" name="jointNumber">
+       <property name="maximum">
+        <number>5</number>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="0" colspan="2">
+      <widget class="QLabel" name="label_6">
+       <property name="text">
+        <string>Control topic</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="2" colspan="5">
+      <widget class="QLineEdit" name="controlTopic">
+       <property name="text">
+        <string>/desired/joint_speeds</string>
+       </property>
+      </widget>
+     </item>
+     <item row="5" column="7">
+      <widget class="QPushButton" name="publishControl">
+       <property name="text">
+        <string>Publish</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="0" colspan="3">
+      <widget class="QCheckBox" name="autoSwitch">
+       <property name="text">
+        <string>Auto switch</string>
+       </property>
+      </widget>
+     </item>
      <item row="6" column="3" colspan="2">
+      <widget class="QSpinBox" name="switchTime">
+       <property name="maximum">
+        <number>10000</number>
+       </property>
+       <property name="value">
+        <number>1000</number>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="5">
+      <widget class="QLabel" name="label_9">
+       <property name="text">
+        <string>milliseconds</string>
+       </property>
+      </widget>
+     </item>
+     <item row="6" column="6" colspan="2">
+      <widget class="QCheckBox" name="autoPublish">
+       <property name="text">
+        <string>AutoPublish</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="label_8">
+       <property name="text">
+        <string>First val</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="3">
+      <widget class="QDoubleSpinBox" name="firstValue">
+       <property name="minimum">
+        <double>-999.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>999.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="4">
       <widget class="QRadioButton" name="radioButton">
        <property name="enabled">
         <bool>true</bool>
@@ -116,7 +200,14 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="2">
+     <item row="8" column="0">
+      <widget class="QLabel" name="label_7">
+       <property name="text">
+        <string>Second val</string>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="3">
       <widget class="QDoubleSpinBox" name="secondValue">
        <property name="minimum">
         <double>-999.000000000000000</double>
@@ -126,82 +217,10 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Topic name</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="4" colspan="4">
-      <widget class="QCheckBox" name="autoPublish">
-       <property name="text">
-        <string>AutoPublish</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="2">
-      <widget class="QDoubleSpinBox" name="firstValue">
-       <property name="minimum">
-        <double>-999.000000000000000</double>
-       </property>
-       <property name="maximum">
-        <double>999.000000000000000</double>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="8">
-      <widget class="QPushButton" name="publishPID">
-       <property name="text">
-        <string>Publish</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="1" colspan="2">
-      <widget class="QDoubleSpinBox" name="filterConst"/>
-     </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>Second val</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="3" colspan="2">
+     <item row="8" column="4">
       <widget class="QRadioButton" name="radioButton_2">
        <property name="text">
         <string/>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="7" colspan="2">
-      <widget class="QLabel" name="label_9">
-       <property name="text">
-        <string>milliseconds</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="5">
-      <widget class="QLabel" name="label_10">
-       <property name="text">
-        <string>Joint #</string>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="8">
-      <widget class="QSpinBox" name="jointNumber">
-       <property name="maximum">
-        <number>5</number>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="5">
-      <widget class="QSpinBox" name="switchTime">
-       <property name="maximum">
-        <number>10000</number>
-       </property>
-       <property name="value">
-        <number>1000</number>
        </property>
       </widget>
      </item>

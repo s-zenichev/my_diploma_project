@@ -28,18 +28,19 @@ public:
 
         auto message = std_msgs::msg::Float64MultiArray();
 
-        message.data.resize(4);
-        message.data[0] = ui.proportional->value();
-        message.data[1] = ui.integral->value();
-        message.data[2] = ui.derivative->value();
-        message.data[3] = ui.filterConst->value();
+        message.data.resize(5);
+        message.data[0] = ui.jointNumber->value();
+        message.data[1] = ui.proportional->value();
+        message.data[2] = ui.integral->value();
+        message.data[3] = ui.derivative->value();
+        message.data[4] = ui.filterConst->value();
 
         pid_publisher_->publish(message);
     }
 
     void publishControl()
     {
-        if (control_publisher_ != nullptr) control_publisher_.reset();
+        if (control_publisher_ != nullptr) control_publisher_.reset(); //Костыль! Добавить проверку на изменение топика
         control_publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
             ui.controlTopic->text().toStdString(), 10);
 

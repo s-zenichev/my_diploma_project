@@ -12,6 +12,7 @@ find_package(gazebo_ros REQUIRED)
 find_package(puma560_gazebo REQUIRED)
 find_package(urdf REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -25,7 +26,15 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-add_executable(control_system src/control_system.cpp)
+set (SOURCES
+    src/control_system.cpp
+    src/pid.cpp)
+
+set (HEADERS
+    include/pid.h)
+add_executable(control_system ${HEADERS} ${SOURCES})
+target_include_directories(control_system PRIVATE include)
+target_link_libraries(control_system yaml-cpp)
 ament_target_dependencies(control_system rclcpp std_msgs sensor_msgs)
 
 install(TARGETS
