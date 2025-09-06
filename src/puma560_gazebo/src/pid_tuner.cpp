@@ -29,17 +29,19 @@ public:
             if (pid_publisher_ != nullptr) pid_publisher_.reset();
             pid_publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
                 ui.pidTopic->text().toStdString(), 10);
-                pid_topic_changed = false;
+            pid_topic_changed = false;
         }
 
         auto message = std_msgs::msg::Float64MultiArray();
 
-        message.data.resize(5);
+        message.data.resize(7);
         message.data[0] = ui.jointNumber->value();
         message.data[1] = ui.proportional->value();
         message.data[2] = ui.integral->value();
         message.data[3] = ui.derivative->value();
         message.data[4] = ui.filterConst->value();
+        message.data[5] = ui.integrator_min->value();
+        message.data[6] = ui.integrator_max->value();
 
         pid_publisher_->publish(message);
     }
@@ -62,10 +64,26 @@ public:
 
         control_publisher_->publish(message);
     }
+
+    void resetRobot(){
+
+        if (robot_position_publisher_ == nullptr)
+            robot_position_publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
+                "/set_joint_states", 10);
+                
+        auto message = std_msgs::msg::Float64MultiArray();
+        message.data.resize(12);
+        
+        for (int i=0; i<12; i++) message.data[i] = 0.0;
+
+        robot_position_publisher_->publish(message);
+    }
+
 private:
     
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr pid_publisher_;
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr control_publisher_;
+    rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr robot_position_publisher_;
     size_t count_;
 };
 
@@ -103,6 +121,10 @@ void pubPID(){
     control_topic_changed = true;
  }
 
+ void reset_robot(){
+    node->resetRobot();
+ }
+
 
 int main(int argc, char * argv[])
 {
@@ -113,6 +135,7 @@ int main(int argc, char * argv[])
     ui.setupUi(&window);
     QObject::connect(ui.publishPID, &QPushButton::released, pubPID);
     QObject::connect(ui.publishControl, &QPushButton::released, pubControl);
+    QObject::connect(ui.resetButton, &QPushButton::released, reset_robot);
     QObject::connect(timer, &QTimer::timeout, timerCallback);
     QObject::connect(timer2, &QTimer::timeout, timer2Callback);
     QObject::connect(ui.switchTime, &QSpinBox::textChanged, updateTimer);

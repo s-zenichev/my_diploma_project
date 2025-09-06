@@ -1,13 +1,13 @@
 /********************************************************************************
-** Form generated from reading UI file 'pid_tunerybQDjJ.ui'
+** Form generated from reading UI file 'pid_tunerhYvldx.ui'
 **
 ** Created by: Qt User Interface Compiler version 5.15.3
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef PID_TUNERYBQDJJ_H
-#define PID_TUNERYBQDJJ_H
+#ifndef PID_TUNERHYVLDX_H
+#define PID_TUNERHYVLDX_H
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
@@ -56,6 +56,11 @@ public:
     QLabel *label_7;
     QDoubleSpinBox *secondValue;
     QRadioButton *radioButton_2;
+    QLabel *label_11;
+    QDoubleSpinBox *integrator_max;
+    QLabel *label_12;
+    QDoubleSpinBox *integrator_min;
+    QPushButton *resetButton;
 
     void setupUi(QMainWindow *MainWindow)
     {
@@ -218,6 +223,36 @@ public:
 
         gridLayout->addWidget(radioButton_2, 8, 4, 1, 1);
 
+        label_11 = new QLabel(layoutWidget);
+        label_11->setObjectName(QString::fromUtf8("label_11"));
+
+        gridLayout->addWidget(label_11, 1, 5, 1, 1);
+
+        integrator_max = new QDoubleSpinBox(layoutWidget);
+        integrator_max->setObjectName(QString::fromUtf8("integrator_max"));
+        integrator_max->setDecimals(4);
+        integrator_max->setMaximum(999.000000000000000);
+
+        gridLayout->addWidget(integrator_max, 1, 7, 1, 1);
+
+        label_12 = new QLabel(layoutWidget);
+        label_12->setObjectName(QString::fromUtf8("label_12"));
+
+        gridLayout->addWidget(label_12, 2, 5, 1, 1);
+
+        integrator_min = new QDoubleSpinBox(layoutWidget);
+        integrator_min->setObjectName(QString::fromUtf8("integrator_min"));
+        integrator_min->setDecimals(4);
+        integrator_min->setMinimum(-999.000000000000000);
+        integrator_min->setMaximum(0.000000000000000);
+
+        gridLayout->addWidget(integrator_min, 2, 7, 1, 1);
+
+        resetButton = new QPushButton(layoutWidget);
+        resetButton->setObjectName(QString::fromUtf8("resetButton"));
+
+        gridLayout->addWidget(resetButton, 8, 7, 1, 1);
+
         MainWindow->setCentralWidget(centralwidget);
 
         retranslateUi(MainWindow);
@@ -246,6 +281,9 @@ public:
         radioButton->setText(QString());
         label_7->setText(QCoreApplication::translate("MainWindow", "Second val", nullptr));
         radioButton_2->setText(QString());
+        label_11->setText(QCoreApplication::translate("MainWindow", "Int. max", nullptr));
+        label_12->setText(QCoreApplication::translate("MainWindow", "Int. min", nullptr));
+        resetButton->setText(QCoreApplication::translate("MainWindow", "Reset robot", nullptr));
     } // retranslateUi
 
 };
@@ -256,4 +294,4 @@ namespace Ui {
 
 QT_END_NAMESPACE
 
-#endif // PID_TUNERYBQDJJ_H
+#endif // PID_TUNERHYVLDX_H

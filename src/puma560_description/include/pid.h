@@ -7,17 +7,25 @@
 
 class PID{
     public:
-        PID(double P = 0, double I = 0, double D = 0, double N = 0){
+        PID(double P = 0, double I = 0, double D = 0, double N = 0, double I_min = 0, double I_max = 0){
             _p = P;
             _i = I;
             _d = D;
             _n = N;
+            _i_min = I_min;
+            _i_max = I_max;
         }
         void setP(double P){
             _p = P;
         }
         void setI(double I){
             _i = I;
+        }
+        void setIMin(double I_min){
+            _i_min = I_min;
+        }
+        void setIMax(double I_max){
+            _i_max = I_max;
         }
         void setD(double D){
             _d = D;
@@ -49,13 +57,18 @@ class PID{
         double getN(void){
             return _n;
         }
+        double getDerivative(double eps){
+            return (eps*_d - _derivative_integrator)*_n;
+        }
         double control(double eps){
             double contr = 0;
             contr += eps * _p;
-            contr += _integrator * _i;
-            contr += (eps - _derivative_integrator) * _n * _d;
-            _integrator += eps;
-            _derivative_integrator += (eps - _derivative_integrator) * _n;
+            contr += _integrator;
+            contr += (eps *_d - _derivative_integrator) * _n;
+            _integrator += eps * _i;
+            if (_integrator > _i_max) _integrator = _i_max;
+            if (_integrator < _i_min) _integrator = _i_min;
+            _derivative_integrator += (eps * _d - _derivative_integrator) * _n;
             return contr;
         }
     private:
@@ -63,7 +76,9 @@ class PID{
         double _i;
         double _d;
         double _n;
+        double _i_min;
+        double _i_max;
         double _integrator;
         double _derivative_integrator;
 };
-#endif
+#endif //MY_PID

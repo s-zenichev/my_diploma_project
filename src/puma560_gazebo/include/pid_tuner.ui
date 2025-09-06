@@ -236,6 +236,50 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="5">
+      <widget class="QLabel" name="label_11">
+       <property name="text">
+        <string>Int. max</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="7">
+      <widget class="QDoubleSpinBox" name="integrator_max">
+       <property name="decimals">
+        <number>4</number>
+       </property>
+       <property name="maximum">
+        <double>999.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="5">
+      <widget class="QLabel" name="label_12">
+       <property name="text">
+        <string>Int. min</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="7">
+      <widget class="QDoubleSpinBox" name="integrator_min">
+       <property name="decimals">
+        <number>4</number>
+       </property>
+       <property name="minimum">
+        <double>-999.000000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>0.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="7">
+      <widget class="QPushButton" name="resetButton">
+       <property name="text">
+        <string>Reset robot</string>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
   </widget>

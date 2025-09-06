@@ -8,7 +8,7 @@ namespace YAML
 {
     void decode(const Node &node, PID &pid)
     {
-        if (node.size() != 4)
+        if (node.size() != 6)
         {
             return;
         }
@@ -16,6 +16,8 @@ namespace YAML
         pid.setI(node["I"].as<double>());
         pid.setD(node["D"].as<double>());
         pid.setN(node["N"].as<double>());
+        pid.setIMin(node["I_min"].as<double>());
+        pid.setIMax(node["I_max"].as<double>());
     };
 
 }
