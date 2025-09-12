@@ -372,7 +372,7 @@ namespace pso
         }
 
         Result _minimize(const Matrix &bounds,
-            Matrix &particles)
+            Matrix &particles, std::shared_ptr<std::atomic<bool>> emergency)
         {
             Matrix velocities(particles.rows(), particles.cols());
 
@@ -402,7 +402,7 @@ namespace pso
             Scalar xchange = xeps_ + 1;
 
             while((maxIt_ == 0 || iterations < maxIt_) &&
-                fchange > feps_ && xchange > xeps_)
+                fchange > feps_ && xchange > xeps_ && !(*emergency))
             {
                 // calculate new velocities
                 calculateVelocities(particles, bestParticles, gbest, iterations, velocities);
@@ -589,7 +589,7 @@ namespace pso
           * @param bounds 2xM matrix for bounds of M-dimensional particles
           * @param cnt number of particles used for optimization */
         Result minimize(const Matrix &bounds,
-            const Index cnt)
+            const Index cnt, std::shared_ptr<std::atomic<bool>> emergency)
         {
             if(cnt == 0)
                 throw std::runtime_error("particle count cannot be 0");
@@ -604,7 +604,7 @@ namespace pso
             Matrix particles(bounds.cols(), cnt);
             randomizeParticles(bounds, particles);
 
-            return _minimize(bounds, particles);
+            return _minimize(bounds, particles, emergency);
         }
 
         /** Perform minimization with the given bounds, number of particels and

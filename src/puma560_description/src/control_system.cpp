@@ -7,7 +7,7 @@
 #include <string>
 #include "config.h"
 
-//#define SPEED_TUNING
+#define SPEED_TUNING
 
 const std::string joint_name[] = {"platform", "shoulder", "elbow", "wrist_revolute", "wrist_bend", "effector_revolute"};
 int joint_num[] = {0, 1, 2, 3, 4, 5};

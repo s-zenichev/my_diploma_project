@@ -11,6 +11,12 @@ endif()
 # find dependencies
 find_package(ament_cmake REQUIRED)
 find_package(Eigen3 REQUIRED)
+find_package(rclpy REQUIRED)
+find_package(gazebo_ros REQUIRED)
+find_package(puma560_gazebo REQUIRED)
+find_package(urdf REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(ament_index_cpp REQUIRED)
 
 find_package(OpenMP)
 if(OPENMP_FOUND)
@@ -29,12 +35,14 @@ include_directories(
     ${EIGEN3_INCLUDE_DIR}
 )
 
-add_subdirectory(test)
-add_subdirectory(examples)
+add_executable(optimizer "./src/optimizer.cpp")
+target_include_directories(optimizer PRIVATE include)
+target_link_libraries(optimizer yaml-cpp)
+ament_target_dependencies(optimizer rclcpp std_msgs sensor_msgs)
 
 install(FILES include/psocpp.h DESTINATION include)
 install(TARGETS
-  my_test
+  optimizer
   DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
