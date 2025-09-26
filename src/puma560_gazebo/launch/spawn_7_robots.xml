@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<launch>
+
+    <include file="$(find-pkg-share puma560_gazebo)/launch/start_world.launch.py"/>
+
+    <include file="$(find-pkg-share puma560_gazebo)/launch/spawn_robot.xml">
+            <arg name="robot_name" value="puma0"/>
+            <arg name="robot_file" value="puma560_robot.xacro"/>
+            <arg name="x_spawn" value="0.0"/>
+            <arg name="y_spawn" value="0.0"/>
+    </include>
+
+    <include file="$(find-pkg-share puma560_gazebo)/launch/spawn_robot.xml">
+            <arg name="robot_name" value="puma1"/>
+            <arg name="robot_file" value="puma560_robot.xacro"/>
+            <arg name="x_spawn" value="3.0"/>
+            <arg name="y_spawn" value="0.0"/>
+    </include>
+    
+    <include file="$(find-pkg-share puma560_gazebo)/launch/spawn_robot.xml">
+            <arg name="robot_name" value="puma2"/>
+            <arg name="robot_file" value="puma560_robot.xacro"/>
+            <arg name="x_spawn" value="6.0"/>
+            <arg name="y_spawn" value="0.0"/>
+    </include>
+
+    <include file="$(find-pkg-share puma560_gazebo)/launch/spawn_robot.xml">
+            <arg name="robot_name" value="puma3"/>
+            <arg name="robot_file" value="puma560_robot.xacro"/>
+            <arg name="x_spawn" value="9.0"/>
+            <arg name="y_spawn" value="0.0"/>
+    </include>
+
+    <include file="$(find-pkg-share puma560_gazebo)/launch/spawn_robot.xml">
+            <arg name="robot_name" value="puma4"/>
+            <arg name="robot_file" value="puma560_robot.xacro"/>
+            <arg name="x_spawn" value="12.0"/>
+            <arg name="y_spawn" value="0.0"/>
+    </include>
+
+    <include file="$(find-pkg-share puma560_gazebo)/launch/spawn_robot.xml">
+            <arg name="robot_name" value="puma5"/>
+            <arg name="robot_file" value="puma560_robot.xacro"/>
+            <arg name="x_spawn" value="15.0"/>
+            <arg name="y_spawn" value="0.0"/>
+    </include>
+
+    <include file="$(find-pkg-share puma560_gazebo)/launch/spawn_robot.xml">
+            <arg name="robot_name" value="puma6"/>
+            <arg name="robot_file" value="puma560_robot.xacro"/>
+            <arg name="x_spawn" value="18.0"/>
+            <arg name="y_spawn" value="0.0"/>
+    </include>
+    
+
+</launch>

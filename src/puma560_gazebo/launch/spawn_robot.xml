@@ -1,11 +1,27 @@
-<?xml version='1.0' ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <launch>
-<!-- Start world -->
-<include file="$(find-pkg-share puma560_gazebo)/launch/start_world.launch.py"/>
-<!-- Publish URDF file in robot_description topic -->
-<include file="$(find-pkg-share puma560_description)/launch/publish_urdf.launch.py"/>
-<!-- Start control system -->
-<include file="$(find-pkg-share puma560_description)/launch/control_system.launch.py"/>
-<!-- Read robot_description an dspawn in gazebo running sim -->
-<include file="$(find-pkg-share puma560_gazebo)/launch/spawn_robot_description.launch.py"/>
+
+    <arg name="robot_name" default="robot"/>
+    <arg name="robot_file" default="puma560_robot.urdf"/>
+
+    <arg name="x_spawn" default="0.0"/>
+    <arg name="y_spawn" default="0.0"/>
+
+    <include file="$(find-pkg-share puma560_description)/launch/publish_urdf.launch.py">
+        <arg name="robot_name" value="$(var robot_name)"/>
+        <arg name="robot_file" value="$(var robot_file)"/>
+        <arg name="x_spawn" value="$(var x_spawn)"/>
+        <arg name="y_spawn" value="$(var y_spawn)"/>
+    </include>
+
+    <include file="$(find-pkg-share puma560_gazebo)/launch/spawn_robot_description.launch.py">
+        <arg name="robot_name" value="$(var robot_name)"/>
+        <arg name="x_spawn" value="$(var x_spawn)"/>
+        <arg name="y_spawn" value="$(var y_spawn)"/>
+    </include>
+    
+    <include file="$(find-pkg-share puma560_description)/launch/control_system.launch.py">
+        <arg name="robot_name" value="$(var robot_name)"/>
+    </include>
+    
 </launch>

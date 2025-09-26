@@ -2,8 +2,12 @@
 #include <gazebo-11/gazebo/gazebo.hh>
 #include <gazebo-11/gazebo/physics/physics.hh>
 #include <gazebo-11/gazebo/common/common.hh>
+#include <gazebo-11/gazebo/common/Plugin.hh>
+#include <gazebo_ros/node.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <std_msgs/msg/float64_multi_array.hpp>
+#include <string.h>
+#include <stdio.h>
 
 namespace gazebo
 {
@@ -12,11 +16,18 @@ namespace gazebo
   public:
     void Load(physics::ModelPtr _model, sdf::ElementPtr _sdf) override
     {
+      //ros_node_ = gazebo_ros::Node::Get(_sdf);
+      node_ = gazebo_ros::Node::Get(_sdf);
       RCLCPP_INFO(rclcpp::get_logger("joint_setter_plugin"), "Plugin started!");
+
       model_ = _model;
       if (model_ != nullptr) RCLCPP_INFO(rclcpp::get_logger("joint_setter_plugin"), "Model ptr loaded!");
-      
-      node_ = rclcpp::Node::make_shared("joint_setter_node");
+      if(_sdf->HasElement("robot_name")){
+        std::string robot_name = _sdf->Get<std::string>("robot_name");
+        for (int i=0; i<7; i++) joint_names_[i] = robot_name + "_" + joint_names_[i];
+        std::cout<<joint_names_[1]<<std::endl;
+      }
+
       RCLCPP_INFO(rclcpp::get_logger("joint_setter_plugin"), "Node created!");
       sub_ = node_->create_subscription<std_msgs::msg::Float64MultiArray>(
         "/set_joint_states", 10,
@@ -49,6 +60,7 @@ namespace gazebo
   private:
     physics::ModelPtr model_;
     rclcpp::Node::SharedPtr node_;
+    gazebo_ros::Node::SharedPtr ros_node_;
     rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr sub_;
     std::thread thread_;
 

@@ -45,7 +45,7 @@ install(
   DIRECTORY
     config
     launch
-    urdf
+    xacro
     meshes
     rviz
   DESTINATION
