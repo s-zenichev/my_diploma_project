@@ -10,10 +10,13 @@
 
 #include <psocpp.h>
 
-#define TIME_STEP 1
+#define SPEED_TUNING
 
 const std::string joint_name[] = {"platform", "shoulder", "elbow", "wrist_revolute", "wrist_bend", "effector_revolute"};
 int joint_num[] = {0, 1, 2, 3, 4, 5};
+
+double desired_speed = 0.2;
+double desired_position = 1.0;
 
 using std::placeholders::_1;
 
@@ -24,42 +27,53 @@ public:
     {
         joint_states_ = this->create_subscription<sensor_msgs::msg::JointState>(
             "/joint_states", 10, std::bind(&StepResponse::joint_topic_callback, this, _1));   
-        desired_joint_positions_ = this->create_subscription<std_msgs::msg::Float64MultiArray>(
-            "/desired/joint_positions", 10, std::bind(&StepResponse::desired_positions_callback, this, _1));
-        desired_joint_speeds_ = this->create_subscription<std_msgs::msg::Float64MultiArray>(
-            "/desired/joint_speeds", 10, std::bind(&StepResponse::desired_speeds_callback, this, _1));
+        desired_joint_positions_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
+            "/desired/joint_positions", 10);
+        desired_joint_speeds_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
+            "/desired/joint_speeds", 10);
+        pid_publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
+            "/pid_values", 10);
         debug_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
             "/puma560/debug", 10);
+        
+        
+    }
 
-        this->reset_timer();
-        timer_ = this->create_wall_timer(
-            std::chrono::milliseconds(TIME_STEP), std::bind(&StepResponse::timer, this));
-        
-        
+    void resetRobot(){
+        if (reset_ == nullptr)
+            reset_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
+                "/set_joint_states", 10);
+                
+        auto message = std_msgs::msg::Float64MultiArray();
+        message.data.resize(12);
+        for (int i=0; i<12; i++) message.data[i] = 0.0;
+        reset_->publish(message);
+
+        message.data.resize(6);
+        #ifdef SPEED_TUNING
+            for (int i=0; i<6; i++) message.data[i] = desired_speed;
+            desired_joint_speeds_->publish(message);
+        #else
+        for (int i=0; i<6; i++) message.data[i] = desired_position;
+            desired_joint_positions_->publish(message);
+        #endif
     }
 
     template<typename Derived>
     double opt(const Eigen::MatrixBase<Derived> &xval)
     {
-        if(!rclcpp::ok()) return(0);
-        this->reset_timer();
-        while (time < 50)std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        return abs(xval(0));
+        optimization_running = true;
+        time_set = false;
+        resetRobot();
+        while (time < 2){
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            if(!rclcpp::ok()) return(0);
+        }
+        optimization_running = false;
+        return integrator;
     }
-    void stop() {
-        // Остановка всех внутренних процессов
-        timer_->cancel();
-    }
-
 private:
 
-    void timer(){
-        time += TIME_STEP;
-    }
-
-    void reset_timer(){
-        time = 0;
-    }
 
     bool joints_enumerated(const sensor_msgs::msg::JointState & msg){
         bool joints_enumerated = true;
@@ -83,34 +97,53 @@ private:
             joint_position[joint_num[i]] = msg.position[i];
             joint_speed[joint_num[i]] = msg.velocity[i];
         }
-    }
-
-    void desired_positions_callback(const std_msgs::msg::Float64MultiArray & msg)
-    {
-        for (int i=0; i<6; i++)
-        {
-            joint_desired_position[i] = msg.data[i];
+        if (optimization_running && (desired_positions_set || desired_speeds_set)){
+            if (!time_set){
+                initial_time = msg.header.stamp;
+                prev_time =  msg.header.stamp;
+                integrator = 0;
+                time_set = true;
+                for (int i=0; i<6; i++) prev_error[i] = 0;
+            }
+            else{
+                rclcpp::Duration duration = msg.header.stamp - initial_time;
+                rclcpp::Duration time_step = msg.header.stamp - prev_time;
+                time = duration.seconds();
+            
+                for (int i=0; i<6; i++){
+                    #ifdef SPEED_TUNING
+                        error[i] = desired_speed - joint_speed[i];
+                        if (error[i] < -desired_speed*0.1) integrator = 1e10;
+                    #else
+                        error[i] = desired_position - joint_position[i];
+                    #endif
+                    integrator += pow((error[i]+prev_error[i])/2*time_step.seconds(), 2);
+                    prev_error[i] = error[i];
+                }
+                
+                prev_time = msg.header.stamp;
+            }
         }
     }
 
-    void desired_speeds_callback(const std_msgs::msg::Float64MultiArray & msg)
-    {
-        for (int i=0; i<6; i++)
-        {
-            joint_desired_speed[i] = msg.data[i];
-        }
-    }
 
     rclcpp::TimerBase::SharedPtr timer_;
+    rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr pid_publisher_;
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr debug_;
+    rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr reset_;
+    rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr desired_joint_positions_;
+    rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr desired_joint_speeds_;
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_;
-    rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr desired_joint_positions_;
-    rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr desired_joint_speeds_;
     double joint_position[6];
     double joint_speed[6];
-    double joint_desired_position[6];
-    double joint_desired_speed[6];
-    double time;
+    double error[6];
+    double prev_error[6];
+    rclcpp::Time initial_time;
+    rclcpp::Time prev_time;
+    double integrator;
+    double time = 0.0;
+    bool optimization_running = false;
+    bool time_set = false;
 };
 
 
@@ -168,7 +201,6 @@ int main(int argc, char * argv[])
     // do something with final x-value
     std::cout << "Final xval: " << result.xval.transpose() << std::endl;
 
-    step_response->stop();
     rclcpp::shutdown();
     if (ros_thread.joinable()) ros_thread.join();
     return 0;
