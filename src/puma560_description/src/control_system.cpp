@@ -9,7 +9,12 @@
 
 //#define SPEED_TUNING
 
-const std::string joint_name[] = {"platform", "shoulder", "elbow", "wrist_revolute", "wrist_bend", "effector_revolute"};
+const std::string joint_name[] = {"shoulder_pan_joint",
+                                  "shoulder_lift_joint",
+                                  "elbow_joint",
+                                  "wrist_1_joint",
+                                  "wrist_2_joint",
+                                  "wrist_3_joint"};
 int joint_num[] = {0, 1, 2, 3, 4, 5};
 
 using std::placeholders::_1;
