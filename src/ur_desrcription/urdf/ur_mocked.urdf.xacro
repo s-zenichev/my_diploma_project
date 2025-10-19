@@ -23,7 +23,7 @@
   <xacro:arg name="mock_sensor_commands" default="false" />
 
   <!--When using gazebo simulations absolute paths are necessary.-->
-  <xacro:arg name="force_abs_paths" default="false" />
+  <xacro:arg name="force_abs_paths" default="true" />
 
   <!-- initial position for simulations (Mock Hardware, Gazebo, Ignition) -->
   <xacro:arg name="initial_positions_file" default="$(find ur_description)/config/initial_positions.yaml"/>
@@ -58,4 +58,10 @@
     mock_sensor_commands="$(arg mock_sensor_commands)"
     initial_positions="${xacro.load_yaml(initial_positions_file)}"
   />
+
+  <gazebo>
+    <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
+      <parameters>$(find ur_description)/config/ur15/joint_controller.yaml</parameters>
+    </plugin>
+  </gazebo>
 </robot>

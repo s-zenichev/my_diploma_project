@@ -20,8 +20,8 @@
    <xacro:arg name="safety_pos_margin" default="0.15"/>
    <xacro:arg name="safety_k_position" default="20"/>
 
-   <!--When using gazebo simulations absolute paths are necessary.-->
-   <xacro:arg name="force_abs_paths" default="false" />
+   <!--When using gazebo simulations, absolute paths are necessary.-->
+   <xacro:arg name="force_abs_paths" default="true" />
 
    <!-- create link fixed to the "world" -->
    <link name="world" />

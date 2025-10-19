@@ -86,7 +86,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             "description_file",
             default_value=PathJoinSubstitution(
-                [FindPackageShare("ur_description"), "urdf", "ur.urdf.xacro"]
+                [FindPackageShare("ur_description"), "urdf", "ur_mocked.urdf.xacro"]
             ),
             description="URDF/XACRO description file (absolute path) with the robot.",
         )
@@ -148,14 +148,11 @@ def generate_launch_description():
         "robot_description": ParameterValue(value=robot_description_content, value_type=str)
     }
 
-    joint_state_publisher_node = Node(
-        package="joint_state_publisher_gui",
-        executable="joint_state_publisher_gui",
-    )
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
-        output="both",
+        emulate_tty=True,
+        output="screen",
         parameters=[robot_description],
     )
     rviz_node = Node(
@@ -167,7 +164,6 @@ def generate_launch_description():
     )
 
     nodes_to_start = [
-        joint_state_publisher_node,
         robot_state_publisher_node,
         rviz_node,
     ]
