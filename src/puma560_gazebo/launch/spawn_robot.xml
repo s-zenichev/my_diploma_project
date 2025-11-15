@@ -4,7 +4,7 @@
 <include file="$(find-pkg-share puma560_gazebo)/launch/start_world.launch.py"/>
 <!-- Publish URDF file in robot_description topic -->
 <include file="$(find-pkg-share ur_description)/launch/view_ur.launch.py">
-    <arg name="ur_type" value="ur5e"/>
+    <arg name="ur_type" value="ur15"/>
 </include>
 <!-- Start control system -->
 <include file="$(find-pkg-share puma560_description)/launch/control_system.launch.py"/>
