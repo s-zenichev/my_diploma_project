@@ -101,22 +101,39 @@ private:
 
         // New algo testing below
 
+        if(!links_init()) return; //Links not ready
+
         visualization_msgs::msg::MarkerArray marker_array;
+
+        link_omega[0] = joint_speed[0]*tf2::Vector3(0, 0, 1);
+
+        auto CoM = links[0].get_CoM();
+        auto marker = create_vector_marker(0, links[0].get_name()+"_link", CoM.x(), CoM.y(), CoM.z(), 
+            (link_omega[0].x())/10 + CoM.x(), (link_omega[0].y())/10 + CoM.y(), (link_omega[0].z())/10+CoM.z());
+        marker_array.markers.push_back(marker);
         
-        for(int i=0; i<6; i++){
-            auto CoM = links[i].get_CoM();
-            auto marker = create_vector_marker(6+i, links[i].get_name()+"_link", 0, 0, 0, CoM.x(), CoM.y(), CoM.z());
-            marker_array.markers.push_back(marker);
-            
-            auto ri = links[i].get_ri();
-            if (!ri.isZero()){
-                auto marker2 = create_vector_marker(i, links[i].get_name()+"_link", 
-                        0, 0, 0, CoM.x()-ri.x(), CoM.y()-ri.y(), CoM.z()-ri.z());
-                marker_array.markers.push_back(marker2);
+
+        for(int i=1; i<6; i++){
+            if (tf_buffer_->canTransform(links[i-1].get_name()+"_link", 
+                    links[i].get_name()+"_link", tf2::TimePointZero)){
+                auto CoM = links[i].get_CoM();
+
+                geometry_msgs::msg::TransformStamped rotationTransform;
+                tf2::Transform R;
+
+                rotationTransform = tf_buffer_->lookupTransform(links[i].get_name()+"_link", 
+                    links[i-1].get_name()+"_link", tf2::TimePointZero);
+                tf2::fromMsg(rotationTransform.transform, R);
+                R.setOrigin(tf2::Vector3(0, 0, 0));
+                link_omega[i] = R*link_omega[i-1] + joint_speed[i]*tf2::Vector3(0, 0, 1);
+
+                auto marker = create_vector_marker(i, links[i].get_name()+"_link", CoM.x(), CoM.y(), CoM.z(),
+                (link_omega[i].x())/10+CoM.x(), (link_omega[i].y())/10+CoM.y(), (link_omega[i].z())/10+CoM.z());
+                marker_array.markers.push_back(marker);
             }
         }
-        vectors_->publish(marker_array);
 
+        vectors_->publish(marker_array);
     }
 
     /// @brief Marker creation func
@@ -276,10 +293,13 @@ private:
     double joint_speed[6];
     double joint_desired_position[6];
     double joint_desired_speed[6];
+    double joint_control[6]={0,};
     tf2::Vector3 base_speed;
     tf2::Vector3 base_acceleration;
     tf2::Vector3 gripper_load;
     tf2::Vector3 gripper_torque;
+    tf2::Vector3 link_omega[6];
+    tf2::Vector3 link_omega_dot[6];
     std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
     std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 };

@@ -5,8 +5,9 @@ Panels:
     Property Tree Widget:
       Expanded:
         - /RobotModel1
-        - /RobotModel1/Mass Properties1
-        - /RobotModel1/Description Topic1
+        - /RobotModel1/Links1
+        - /RobotModel1/Links1/wrist_2_link1
+        - /RobotModel1/Links1/wrist_3_link1
         - /MarkerArray1
       Splitter Ratio: 0.309041827917099
     Tree Height: 805
@@ -81,7 +82,7 @@ Visualization Manager:
           Show Trail: false
         forearm_link:
           Alpha: 1
-          Show Axes: false
+          Show Axes: true
           Show Trail: false
           Value: true
         ft_frame:
@@ -90,7 +91,7 @@ Visualization Manager:
           Show Trail: false
         shoulder_link:
           Alpha: 1
-          Show Axes: false
+          Show Axes: true
           Show Trail: false
           Value: true
         tool0:
@@ -99,7 +100,7 @@ Visualization Manager:
           Show Trail: false
         upper_arm_link:
           Alpha: 1
-          Show Axes: false
+          Show Axes: true
           Show Trail: false
           Value: true
         world:
@@ -108,22 +109,22 @@ Visualization Manager:
           Show Trail: false
         wrist_1_link:
           Alpha: 1
-          Show Axes: false
+          Show Axes: true
           Show Trail: false
           Value: true
         wrist_2_link:
           Alpha: 1
-          Show Axes: false
+          Show Axes: true
           Show Trail: false
           Value: true
         wrist_3_link:
           Alpha: 1
-          Show Axes: false
+          Show Axes: true
           Show Trail: false
           Value: true
       Mass Properties:
         Inertia: false
-        Mass: true
+        Mass: false
       Name: RobotModel
       TF Prefix: ""
       Update Interval: 0
@@ -187,25 +188,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 2.5064971446990967
+      Distance: 1.3227585554122925
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.05995550379157066
-        Y: -0.0011571268551051617
-        Z: 0.6164664030075073
+        X: -0.00048808444989845157
+        Y: 0.1408545821905136
+        Z: 0.5468690991401672
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5153982043266296
+      Pitch: 0.1503986418247223
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 1.7285687923431396
+      Yaw: 2.638575792312622
     Saved: ~
 Window Geometry:
   Displays:
