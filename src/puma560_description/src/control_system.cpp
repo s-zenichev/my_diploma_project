@@ -14,6 +14,7 @@
 #include "robot_model.h"
 
 //#define SPEED_TUNING
+#define ARR_DIV 100
 
 const std::string joint_name[] = {"shoulder_pan_joint",
                                   "shoulder_lift_joint",
@@ -94,6 +95,7 @@ private:
             #endif
             debug_message.data[i] = speed_controller[i].getDerivative(eps);
             message.data[i] = speed_controller[i].control(eps);
+            joint_control[i] = message.data[i];
         }
 
         publisher_->publish(message);
@@ -104,13 +106,31 @@ private:
         if(!links_init()) return; //Links not ready
 
         visualization_msgs::msg::MarkerArray marker_array;
+        
+        if (tf_buffer_->canTransform(links[0].get_name()+"_link", 
+                    "base_link", tf2::TimePointZero)){
 
-        link_omega[0] = joint_speed[0]*tf2::Vector3(0, 0, 1);
+            geometry_msgs::msg::TransformStamped rotationTransform;
+            tf2::Transform R;
 
-        auto CoM = links[0].get_CoM();
-        auto marker = create_vector_marker(0, links[0].get_name()+"_link", CoM.x(), CoM.y(), CoM.z(), 
-            (link_omega[0].x())/10 + CoM.x(), (link_omega[0].y())/10 + CoM.y(), (link_omega[0].z())/10+CoM.z());
-        marker_array.markers.push_back(marker);
+            rotationTransform = tf_buffer_->lookupTransform(links[0].get_name()+"_link", 
+                "base_link", tf2::TimePointZero);
+            tf2::fromMsg(rotationTransform.transform, R);
+            R.setOrigin(tf2::Vector3(0, 0, 0));
+            auto CoM = links[0].get_CoM();
+
+            link_omega[0] = joint_speed[0]*tf2::Vector3(0, 0, 1);
+            link_omega_dot[0] = joint_control[0]*tf2::Vector3(0, 0, 1);
+            link_origin_acceleration[0] = R*base_acceleration + link_omega_dot[0].cross(links[0].get_r_next()) + 
+                link_omega[0].cross(link_omega[0].cross(links[0].get_r_next()));
+            link_acceleration[0] = link_origin_acceleration[0] + link_omega_dot[0].cross(CoM) + 
+                        link_omega[0].cross(link_omega[0].cross(CoM));
+
+            
+            auto marker = create_vector_marker(0, links[0].get_name()+"_link", CoM.x(), CoM.y(), CoM.z(), 
+                link_acceleration[0].x()/ARR_DIV + CoM.x(), link_acceleration[0].y()/ARR_DIV + CoM.y(), link_acceleration[0].z()/ARR_DIV+CoM.z());
+            marker_array.markers.push_back(marker);
+        }
         
 
         for(int i=1; i<6; i++){
@@ -125,10 +145,21 @@ private:
                     links[i-1].get_name()+"_link", tf2::TimePointZero);
                 tf2::fromMsg(rotationTransform.transform, R);
                 R.setOrigin(tf2::Vector3(0, 0, 0));
+
                 link_omega[i] = R*link_omega[i-1] + joint_speed[i]*tf2::Vector3(0, 0, 1);
 
-                auto marker = create_vector_marker(i, links[i].get_name()+"_link", CoM.x(), CoM.y(), CoM.z(),
-                (link_omega[i].x())/10+CoM.x(), (link_omega[i].y())/10+CoM.y(), (link_omega[i].z())/10+CoM.z());
+                tf2::Vector3 link_omega_rot = R*link_omega[i-1]; // link omega rotated
+                link_omega_dot[i] = R*link_omega_dot[i-1] + joint_control[i]*tf2::Vector3(0, 0, 1) +
+                        joint_speed[i]*link_omega_rot.cross(tf2::Vector3(0, 0, 1));
+
+                link_origin_acceleration[i] = R*link_origin_acceleration[i-1] +
+                    link_omega_dot[i].cross(links[i].get_r_next()) + 
+                    link_omega[i].cross(link_omega[i].cross(links[i].get_r_next()));
+                link_acceleration[i] = link_origin_acceleration[i] + link_omega_dot[i].cross(CoM) + 
+                        link_omega[i].cross(link_omega[i].cross(CoM));
+
+                auto marker = create_vector_marker(i, links[i].get_name()+"_link", CoM.x(), CoM.y(), CoM.z(), 
+                    link_acceleration[i].x()/ARR_DIV + CoM.x(), link_acceleration[i].y()/ARR_DIV + CoM.y(), link_acceleration[i].z()/ARR_DIV+CoM.z());
                 marker_array.markers.push_back(marker);
             }
         }
@@ -209,11 +240,15 @@ private:
                 tf2::fromMsg(offsetTransform.transform, transform);
                 next_origin = transform.getOrigin();
 
+                links[i].set_r_next(next_origin);
                 ri = CoM - next_origin;
                 links[i].set_ri(ri);
             }
         }
-        else links[i].set_ri(tf2::Vector3(0, 0, 0));
+        else {
+            links[i].set_ri(tf2::Vector3(0, 0, 0));
+            links[i].set_r_next(tf2::Vector3(0, 0, 0));
+        }
     }
   }
 
@@ -300,6 +335,8 @@ private:
     tf2::Vector3 gripper_torque;
     tf2::Vector3 link_omega[6];
     tf2::Vector3 link_omega_dot[6];
+    tf2::Vector3 link_origin_acceleration[6];
+    tf2::Vector3 link_acceleration[6];
     std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
     std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 };
