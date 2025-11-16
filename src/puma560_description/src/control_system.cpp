@@ -31,7 +31,7 @@ std::string link_name[] = { "shoulder",
                             "wrist_3"};
 
 const std::string links_config_path = ament_index_cpp::get_package_share_directory("ur_description")+
-                "/config/ur15/physical_parameters.yaml";
+                "/config/ur5e/physical_parameters.yaml";
 
 using std::placeholders::_1;
 
@@ -107,28 +107,12 @@ private:
             auto CoM = links[i].get_CoM();
             auto marker = create_vector_marker(6+i, links[i].get_name()+"_link", 0, 0, 0, CoM.x(), CoM.y(), CoM.z());
             marker_array.markers.push_back(marker);
-        
-            if (i!=5){
-                if (tf_buffer_->canTransform(links[i].get_name()+"_link", 
-                        links[i+1].get_name()+"_link", tf2::TimePointZero)){
-                
-                    geometry_msgs::msg::TransformStamped offsetTransform;
-                    tf2::Transform transform;
-                    tf2::Vector3 next_origin; 
-                    tf2::Vector3 ri;
-
-                    offsetTransform = tf_buffer_->lookupTransform(links[i].get_name()+"_link", 
-                        links[i+1].get_name()+"_link", tf2::TimePointZero);
-                    tf2::fromMsg(offsetTransform.transform, transform);
-                    next_origin = transform.getOrigin();
-
-                    ri = CoM - next_origin;
-                    links[i].set_ri(ri);
-                    
-                    auto marker2 = create_vector_marker(i, links[i].get_name()+"_link", 
+            
+            auto ri = links[i].get_ri();
+            if (!ri.isZero()){
+                auto marker2 = create_vector_marker(i, links[i].get_name()+"_link", 
                         0, 0, 0, CoM.x()-ri.x(), CoM.y()-ri.y(), CoM.z()-ri.z());
-                    marker_array.markers.push_back(marker2);
-                }
+                marker_array.markers.push_back(marker2);
             }
         }
         vectors_->publish(marker_array);
@@ -181,6 +165,41 @@ private:
     return marker;
   }
 
+  bool links_init(void){
+    bool init = true;
+    for(int i=0; i<6; i++)
+    {
+        if(!links[i].init()) init = false;
+    }
+    return init;
+  }
+
+  void init_links(void){
+    for(int i=0; i<6; i++){
+        auto CoM = links[i].get_CoM();
+        
+        if (i!=5){
+            if (tf_buffer_->canTransform(links[i].get_name()+"_link", 
+                    links[i+1].get_name()+"_link", tf2::TimePointZero)){
+            
+                geometry_msgs::msg::TransformStamped offsetTransform;
+                tf2::Transform transform;
+                tf2::Vector3 next_origin; 
+                tf2::Vector3 ri;
+
+                offsetTransform = tf_buffer_->lookupTransform(links[i].get_name()+"_link", 
+                    links[i+1].get_name()+"_link", tf2::TimePointZero);
+                tf2::fromMsg(offsetTransform.transform, transform);
+                next_origin = transform.getOrigin();
+
+                ri = CoM - next_origin;
+                links[i].set_ri(ri);
+            }
+        }
+        else links[i].set_ri(tf2::Vector3(0, 0, 0));
+    }
+  }
+
     bool joints_enumerated(const sensor_msgs::msg::JointState & msg){
         bool joints_enumerated = true;
         for (int i = 0; i<6; i++)
@@ -203,6 +222,7 @@ private:
             joint_position[joint_num[i]] = msg.position[i];
             joint_speed[joint_num[i]] = msg.velocity[i];
         }
+        if(!links_init()) init_links();
     }
 
     void pid_values_callback(const std_msgs::msg::Float64MultiArray & msg)
