@@ -53,8 +53,12 @@ namespace gazebo
     std::thread thread_;
 
     // Нужно заполнить по вашим именам суставов
-    std::vector<std::string> joint_names_ = 
-    {"platform", "shoulder", "elbow", "wrist_revolute", "wrist_bend", "effector_revolute"};
+    std::vector<std::string> joint_names_ = {"shoulder_pan_joint",
+                                  "shoulder_lift_joint",
+                                  "elbow_joint",
+                                  "wrist_1_joint",
+                                  "wrist_2_joint",
+                                  "wrist_3_joint"};
   };
 
   // Регистрация плагина

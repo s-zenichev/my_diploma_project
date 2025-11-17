@@ -63,5 +63,7 @@
     <plugin name="gazebo_ros2_control" filename="libgazebo_ros2_control.so">
       <parameters>$(find ur_description)/config/ur15/joint_controller.yaml</parameters>
     </plugin>
+    <plugin name="joint_setter_plugin" filename="libjoint_setter_plugin.so">
+    </plugin>
   </gazebo>
 </robot>
