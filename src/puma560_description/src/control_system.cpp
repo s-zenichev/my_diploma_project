@@ -14,7 +14,7 @@
 #include "robot_model.h"
 
 //#define SPEED_TUNING
-#define ARR_DIV 100
+#define ARR_DIV 1000
 
 const std::string joint_name[] = {"shoulder_pan_joint",
                                   "shoulder_lift_joint",
@@ -71,7 +71,7 @@ public:
         }
 
         base_speed.setValue(0.0, 0.0, 0.0);
-        base_acceleration.setValue(0.0, 0.0, 9.81);
+        base_acceleration.setValue(0.0, 0.0, -9.81);
         gripper_load.setValue(0.0, 0.0, 0.0);
         gripper_torque.setValue(0.0, 0.0, 0.0);
     }
@@ -93,13 +93,11 @@ private:
             #else 
                 eps = joint_desired_speed[i] - joint_speed[i];
             #endif
-            debug_message.data[i] = speed_controller[i].getDerivative(eps);
             message.data[i] = speed_controller[i].control(eps);
             joint_control[i] = message.data[i];
         }
 
         publisher_->publish(message);
-        debug_->publish(debug_message);
 
         // New algo testing below
 
@@ -107,8 +105,9 @@ private:
 
         visualization_msgs::msg::MarkerArray marker_array;
         
+        // Forward recursion. First link processing
         if (tf_buffer_->canTransform(links[0].get_name()+"_link", 
-                    "base_link", tf2::TimePointZero)){
+                    "base_link", tf2::TimePointZero)){  
 
             geometry_msgs::msg::TransformStamped rotationTransform;
             tf2::Transform R;
@@ -121,21 +120,17 @@ private:
 
             link_omega[0] = joint_speed[0]*tf2::Vector3(0, 0, 1);
             link_omega_dot[0] = joint_control[0]*tf2::Vector3(0, 0, 1);
-            link_origin_acceleration[0] = R*base_acceleration + link_omega_dot[0].cross(links[0].get_r_next()) + 
-                link_omega[0].cross(link_omega[0].cross(links[0].get_r_next()));
+            link_origin_acceleration[0] = R*base_acceleration;
             link_acceleration[0] = link_origin_acceleration[0] + link_omega_dot[0].cross(CoM) + 
                         link_omega[0].cross(link_omega[0].cross(CoM));
-
-            
-            auto marker = create_vector_marker(0, links[0].get_name()+"_link", CoM.x(), CoM.y(), CoM.z(), 
-                link_acceleration[0].x()/ARR_DIV + CoM.x(), link_acceleration[0].y()/ARR_DIV + CoM.y(), link_acceleration[0].z()/ARR_DIV+CoM.z());
-            marker_array.markers.push_back(marker);
+                        
+            debug_message.data[0] = link_acceleration[0].length();
         }
         
-
+        // Forward recursion. 2-6 links processing
         for(int i=1; i<6; i++){
-            if (tf_buffer_->canTransform(links[i-1].get_name()+"_link", 
-                    links[i].get_name()+"_link", tf2::TimePointZero)){
+            if (tf_buffer_->canTransform(links[i].get_name()+"_link", 
+                    links[i-1].get_name()+"_link", tf2::TimePointZero)){
                 auto CoM = links[i].get_CoM();
 
                 geometry_msgs::msg::TransformStamped rotationTransform;
@@ -153,18 +148,50 @@ private:
                         joint_speed[i]*link_omega_rot.cross(tf2::Vector3(0, 0, 1));
 
                 link_origin_acceleration[i] = R*link_origin_acceleration[i-1] +
-                    link_omega_dot[i].cross(links[i].get_r_next()) + 
-                    link_omega[i].cross(link_omega[i].cross(links[i].get_r_next()));
-                link_acceleration[i] = link_origin_acceleration[i] + link_omega_dot[i].cross(CoM) + 
-                        link_omega[i].cross(link_omega[i].cross(CoM));
+                    R*link_omega_dot[i-1].cross(links[i-1].get_r_next()) + 
+                    R*link_omega[i-1].cross(link_omega[i-1].cross(links[i-1].get_r_next()));
+                link_acceleration[i] = link_origin_acceleration[i] + 
+                    link_omega_dot[i].cross(CoM) + 
+                    link_omega[i].cross(link_omega[i].cross(CoM));
+                
+                debug_message.data[i] = link_acceleration[i].length();
+            }
+        }
 
+        // Reverse recursion. 6 link processing
+        
+        link_force[5] = gripper_load; // Make load and torque in global coordinate system?
+        link_torque[5] = gripper_torque;
+        auto CoM = links[5].get_CoM();
+
+        auto marker = create_vector_marker(5, links[5].get_name()+"_link", CoM.x(), CoM.y(), CoM.z(), 
+            link_force[5].x()/ARR_DIV + CoM.x(), link_force[5].y()/ARR_DIV + CoM.y(), link_force[5].z()/ARR_DIV + CoM.z());
+        marker_array.markers.push_back(marker);
+        //Reverse recursion. 5-1 link processing
+
+        for(int i=4; i>=0; i--){
+            if (tf_buffer_->canTransform(links[i].get_name()+"_link", 
+                    links[i+1].get_name()+"_link", tf2::TimePointZero)){
+                auto CoM = links[i].get_CoM();
+
+                geometry_msgs::msg::TransformStamped rotationTransform;
+                tf2::Transform R;
+
+                rotationTransform = tf_buffer_->lookupTransform(links[i].get_name()+"_link", 
+                    links[i+1].get_name()+"_link", tf2::TimePointZero);
+                tf2::fromMsg(rotationTransform.transform, R);
+                R.setOrigin(tf2::Vector3(0, 0, 0));
+
+                link_force[i] = R*link_force[i+1] + links[i].get_mass()*link_acceleration[i];
                 auto marker = create_vector_marker(i, links[i].get_name()+"_link", CoM.x(), CoM.y(), CoM.z(), 
-                    link_acceleration[i].x()/ARR_DIV + CoM.x(), link_acceleration[i].y()/ARR_DIV + CoM.y(), link_acceleration[i].z()/ARR_DIV+CoM.z());
+                    link_force[i].x()/ARR_DIV + CoM.x(), link_force[i].y()/ARR_DIV + CoM.y(), link_force[i].z()/ARR_DIV + CoM.z());
                 marker_array.markers.push_back(marker);
             }
         }
 
+
         vectors_->publish(marker_array);
+        debug_->publish(debug_message);
     }
 
     /// @brief Marker creation func
@@ -337,6 +364,8 @@ private:
     tf2::Vector3 link_omega_dot[6];
     tf2::Vector3 link_origin_acceleration[6];
     tf2::Vector3 link_acceleration[6];
+    tf2::Vector3 link_force[6];
+    tf2::Vector3 link_torque[6];
     std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
     std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 };
