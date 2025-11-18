@@ -71,7 +71,7 @@ public:
         }
 
         base_speed.setValue(0.0, 0.0, 0.0);
-        base_acceleration.setValue(0.0, 0.0, -9.8);
+        base_acceleration.setValue(0.0, 0.0, 9.8);
         gripper_load.setValue(0.0, 0.0, 0.0);
         gripper_torque.setValue(0.0, 0.0, 0.0);
     }
@@ -94,14 +94,17 @@ private:
                 eps = joint_desired_speed[i] - joint_speed[i];
             #endif
             message.data[i] = speed_controller[i].control(eps);
-            // joint_control[i] = message.data[i];
+            
         }
 
-
+        static double prev_joint_speed[6] = {0, };
+        for (int i = 0; i<6; i++){
+            joint_control[i] = (joint_speed[i] - prev_joint_speed[i])/0.01;
+            prev_joint_speed[i] = joint_speed[i];
+        } 
         // New algo testing below
 
         if(!links_init()) return; //Links not ready
-
         visualization_msgs::msg::MarkerArray marker_array;
         
         // Forward recursion. First link processing
@@ -144,7 +147,7 @@ private:
 
                 tf2::Vector3 link_omega_rot = joint_speed[i] * (R*link_omega[i-1]); // link omega rotated
                 link_omega_dot[i] = R*link_omega_dot[i-1] + joint_control[i]*tf2::Vector3(0, 0, 1) +
-                    link_omega_rot.cross(tf2::Vector3(0, 0, 1));
+                    link_omega_rot.cross(tf2::Vector3(0, 0, 1)); 
 
                 link_origin_acceleration[i] = R*(link_origin_acceleration[i-1] +
                     link_omega_dot[i-1].cross(links[i-1].get_r_next()) + 
@@ -160,7 +163,7 @@ private:
 
         auto CoM = links[5].get_CoM();
 
-        link_force[5] = gripper_load + links[5].get_mass()*link_acceleration[5]; // Make load and torque in global coordinate system?
+        link_force[5] = gripper_load + links[5].get_mass()*link_acceleration[5]; // TODO: Make load and torque in global coordinate system?
         link_torque[5] = gripper_torque - link_force[5].cross(CoM) + gripper_load.cross(links[5].get_ri()) +
             links[5].get_inertia()*link_omega_dot[5] +
             link_omega[5].cross(links[5].get_inertia()*link_omega[5]);  // Add torque from gripper later
@@ -191,9 +194,9 @@ private:
                         links[i].get_inertia()*link_omega_dot[i] + 
                         link_omega[i].cross(links[i].get_inertia()*link_omega[i]);
                 
-                joint_torque[i] = -link_torque[i]*tf2::Vector3(0, 0, 1);
+                joint_torque[i] = link_torque[i]*tf2::Vector3(0, 0, 1);
                 debug_message.data[i] = joint_torque[i].z();
-                message.data[i] = joint_torque[i].z();
+                // message.data[i] = joint_torque[i].z();
 
                 auto marker = create_vector_marker(i, links[i].get_name()+"_link", 0, 0, 0, 
                     joint_torque[i].x()/ARR_DIV, joint_torque[i].y()/ARR_DIV, joint_torque[i].z()/ARR_DIV);
