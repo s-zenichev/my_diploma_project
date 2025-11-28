@@ -71,7 +71,7 @@ public:
         }
 
         base_speed.setValue(0.0, 0.0, 0.0);
-        base_acceleration.setValue(0.0, 0.0, 9.8);
+        base_acceleration.setValue(0.0, 0.0, 9.81);
         gripper_load.setValue(0.0, 0.0, 0.0);
         gripper_torque.setValue(0.0, 0.0, 0.0);
     }
@@ -93,15 +93,15 @@ private:
             #else 
                 eps = joint_desired_speed[i] - joint_speed[i];
             #endif
-            message.data[i] = speed_controller[i].control(eps);
+            joint_control[i] = speed_controller[i].control(eps);
             
         }
 
-        static double prev_joint_speed[6] = {0, };
-        for (int i = 0; i<6; i++){
-            joint_control[i] = (joint_speed[i] - prev_joint_speed[i])/0.01;
-            prev_joint_speed[i] = joint_speed[i];
-        } 
+        // static double prev_joint_speed[6] = {0, };
+        // for (int i = 0; i<6; i++){
+        //     joint_control[i] = (joint_speed[i] - prev_joint_speed[i])/0.01;
+        //     prev_joint_speed[i] = joint_speed[i];
+        // } 
         // New algo testing below
 
         if(!links_init()) return; //Links not ready
@@ -196,7 +196,7 @@ private:
                 
                 joint_torque[i] = link_torque[i]*tf2::Vector3(0, 0, 1);
                 debug_message.data[i] = joint_torque[i].z();
-                // message.data[i] = joint_torque[i].z();
+                message.data[i] = joint_torque[i].z();
 
                 auto marker = create_vector_marker(i, links[i].get_name()+"_link", 0, 0, 0, 
                     joint_torque[i].x()/ARR_DIV, joint_torque[i].y()/ARR_DIV, joint_torque[i].z()/ARR_DIV);

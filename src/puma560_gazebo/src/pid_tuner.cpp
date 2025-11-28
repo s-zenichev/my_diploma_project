@@ -59,7 +59,7 @@ public:
 
         int joint = ui.jointNumber->value();
         message.data.resize(6);
-        for(int i = 0; i<6; i++) message.data[i] = -0.2;
+        for(int i = 0; i<6; i++) message.data[i] = 0.0; //-0.2;
         if(ui.radioButton->isChecked()) message.data[joint] = ui.firstValue->value();
         else message.data[joint] = ui.secondValue->value();
 
