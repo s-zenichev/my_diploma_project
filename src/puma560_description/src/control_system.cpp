@@ -31,6 +31,8 @@ std::string link_name[] = { "shoulder",
                             "wrist_2",
                             "wrist_3"};
 
+float max_torque[] = {150.0, 150.0, 150.0, 28.0, 28.0, 28.0};
+
 const std::string links_config_path = ament_index_cpp::get_package_share_directory("ur_description")+
                 "/config/ur5e/physical_parameters.yaml";
 
@@ -167,7 +169,10 @@ private:
         link_torque[5] = gripper_torque - link_force[5].cross(CoM) + gripper_load.cross(links[5].get_ri()) +
             links[5].get_inertia()*link_omega_dot[5] +
             link_omega[5].cross(links[5].get_inertia()*link_omega[5]);  // Add torque from gripper later
-        joint_torque[5] = -link_torque[5]*tf2::Vector3(0, 0, 1);
+        if(abs(link_torque[5].z()) > max_torque[5]) link_torque[5][2] = 
+            link_torque[5].z()>0 ? max_torque[5] : -max_torque[5];
+        joint_torque[5] = link_torque[5]*tf2::Vector3(0, 0, 1);
+        //message.data[5] = joint_torque[5].z();
 
         auto marker = create_vector_marker(5, links[5].get_name()+"_link", 0, 0, 0, 
             link_torque[5].x()/ARR_DIV, link_torque[5].y()/ARR_DIV, link_torque[5].z()/ARR_DIV);
@@ -193,7 +198,10 @@ private:
                 link_torque[i] = R*link_torque[i+1] - link_force[i].cross(CoM) + link_force_rot.cross(links[i].get_ri()) +
                         links[i].get_inertia()*link_omega_dot[i] + 
                         link_omega[i].cross(links[i].get_inertia()*link_omega[i]);
-                
+
+                if(abs(link_torque[i].z()) > max_torque[i]) link_torque[i][2] = 
+                    link_torque[i].z()>0 ? max_torque[i] : -max_torque[i];
+
                 joint_torque[i] = link_torque[i]*tf2::Vector3(0, 0, 1);
                 debug_message.data[i] = joint_torque[i].z();
                 message.data[i] = joint_torque[i].z();
