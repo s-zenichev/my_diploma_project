@@ -172,7 +172,7 @@ private:
         if(abs(link_torque[5].z()) > max_torque[5]) link_torque[5][2] = 
             link_torque[5].z()>0 ? max_torque[5] : -max_torque[5];
         joint_torque[5] = link_torque[5]*tf2::Vector3(0, 0, 1);
-        //message.data[5] = joint_torque[5].z();
+        message.data[5] = joint_torque[5].z();
 
         auto marker = create_vector_marker(5, links[5].get_name()+"_link", 0, 0, 0, 
             link_torque[5].x()/ARR_DIV, link_torque[5].y()/ARR_DIV, link_torque[5].z()/ARR_DIV);

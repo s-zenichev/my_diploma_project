@@ -40,12 +40,12 @@ speed:
     I_max: 1.0
 
   j_6:
-    P: 0.0
-    I: 0.0
+    P: 60.0
+    I: 10.0
     D: 0.0
     N: 0.0
-    I_min: -0.0
-    I_max: 0.0
+    I_min: -0.1
+    I_max: 0.1
 
 position:
   j_1:
@@ -89,9 +89,9 @@ position:
     I_max: 0.001
 
   j_6:
-    P: 0.0
-    I: 0.0
+    P: 16.0
+    I: 0.01
     D: 0.0
     N: 1.5
-    I_min: -0.0
-    I_max: 0.0
+    I_min: -0.001
+    I_max: 0.001
