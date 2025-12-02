@@ -19,50 +19,43 @@ class PidTuner : public rclcpp::Node
 {
 public:
     PidTuner(void) : Node("tuner"), count_(0)
-    {      
+    {   
+        control_publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
+                "/desired/joint_positions", 10);
+        control_publisher_2_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
+                "/desired/joint_speeds", 10);
+        pid_publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
+                "/pid_values", 10);   
         RCLCPP_INFO(get_logger(), "Node started!");
     }
 
     void publishPID()
     {
-        if(pid_topic_changed){
-            if (pid_publisher_ != nullptr) pid_publisher_.reset();
-            pid_publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
-                ui.pidTopic->text().toStdString(), 10);
-            pid_topic_changed = false;
-        }
-
         auto message = std_msgs::msg::Float64MultiArray();
 
-        message.data.resize(7);
-        message.data[0] = ui.jointNumber->value();
-        message.data[1] = ui.proportional->value();
-        message.data[2] = ui.integral->value();
-        message.data[3] = ui.derivative->value();
-        message.data[4] = ui.filterConst->value();
-        message.data[5] = ui.integrator_min->value();
-        message.data[6] = ui.integrator_max->value();
+        message.data.resize(8);
+        message.data[0] = ui.pidPosition->isChecked();
+        message.data[1] = ui.pidJointNumber->value();
+        message.data[2] = ui.proportional->value();
+        message.data[3] = ui.integral->value();
+        message.data[4] = ui.derivative->value();
+        message.data[5] = ui.filterConst->value();
+        message.data[6] = ui.integrator_min->value();
+        message.data[7] = ui.integrator_max->value();
 
         pid_publisher_->publish(message);
     }
 
     void publishControl()
     {
-        if(control_topic_changed){
-            if (control_publisher_ != nullptr) control_publisher_.reset();
-            control_publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
-                ui.controlTopic->text().toStdString(), 10);
-            control_topic_changed = false;
-        }
-
         auto message = std_msgs::msg::Float64MultiArray();
 
-        int joint = ui.jointNumber->value();
-        message.data.resize(6);
+        message.data.resize(12);
         for(int i = 0; i<6; i++) message.data[i] = 0.0; //-0.2;
         if(ui.radioButton->isChecked()) message.data[joint] = ui.firstValue->value();
         else message.data[joint] = ui.secondValue->value();
 
+        int joint = ui.jointNumber->value();
         control_publisher_->publish(message);
     }
 
@@ -117,10 +110,6 @@ void pubPID(){
     timer->start(ui.switchTime->value());
  }
 
- void topic_changed(){
-    pid_topic_changed = true;
-    control_topic_changed = true;
- }
 
  void reset_robot(){
     node->resetRobot();
@@ -140,8 +129,6 @@ int main(int argc, char * argv[])
     QObject::connect(timer, &QTimer::timeout, timerCallback);
     QObject::connect(timer2, &QTimer::timeout, timer2Callback);
     QObject::connect(ui.switchTime, &QSpinBox::textChanged, updateTimer);
-    QObject::connect(ui.controlTopic, &QLineEdit::editingFinished, topic_changed);
-    QObject::connect(ui.pidTopic, &QLineEdit::editingFinished, topic_changed);
     timer->start(ui.switchTime->value());
     timer2->start(10);
     window.show();
