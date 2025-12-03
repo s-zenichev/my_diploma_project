@@ -32,6 +32,7 @@ std::string link_name[] = { "shoulder",
                             "wrist_3"};
 
 float max_torque[] = {150.0, 150.0, 150.0, 28.0, 28.0, 28.0};
+float max_acceleration[] = {40, 10, 40, 40, 40, 40};
 
 const std::string links_config_path = ament_index_cpp::get_package_share_directory("ur_description")+
                 "/config/ur5e/physical_parameters.yaml";
@@ -96,15 +97,12 @@ private:
                 eps = joint_desired_speed[i] - joint_speed[i];
             #endif
             joint_control[i] = speed_controller[i].control(eps);
-            
+            if(abs(joint_control[i]) > max_acceleration[i])
+                joint_control[i] = joint_control[i]>0 ? max_acceleration[i] : -max_acceleration[i];
+                
+            debug_message.data[i] = joint_control[i];
         }
 
-        // static double prev_joint_speed[6] = {0, };
-        // for (int i = 0; i<6; i++){
-        //     joint_control[i] = (joint_speed[i] - prev_joint_speed[i])/0.01;
-        //     prev_joint_speed[i] = joint_speed[i];
-        // } 
-        // New algo testing below
 
         if(!links_init()) return; //Links not ready
         visualization_msgs::msg::MarkerArray marker_array;
@@ -203,7 +201,6 @@ private:
                     link_torque[i].z()>0 ? max_torque[i] : -max_torque[i];
 
                 joint_torque[i] = link_torque[i]*tf2::Vector3(0, 0, 1);
-                debug_message.data[i] = joint_torque[i].z();
                 message.data[i] = joint_torque[i].z();
 
                 auto marker = create_vector_marker(i, links[i].get_name()+"_link", 0, 0, 0, 
