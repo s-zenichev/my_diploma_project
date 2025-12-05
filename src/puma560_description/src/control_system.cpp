@@ -32,7 +32,7 @@ std::string link_name[] = { "shoulder",
                             "wrist_3"};
 
 float max_torque[] = {150.0, 150.0, 150.0, 28.0, 28.0, 28.0};
-float max_acceleration[] = {40, 10, 40, 40, 40, 40};
+float max_acceleration[] = {40, 10, 20, 40, 40, 40};
 
 const std::string links_config_path = ament_index_cpp::get_package_share_directory("ur_description")+
                 "/config/ur5e/physical_parameters.yaml";
