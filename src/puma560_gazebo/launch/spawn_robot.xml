@@ -3,7 +3,9 @@
 <!-- Start world -->
 <include file="$(find-pkg-share puma560_gazebo)/launch/start_world.launch.py"/>
 <!-- Publish URDF file in robot_description topic -->
-<include file="$(find-pkg-share puma560_description)/launch/publish_urdf.launch.py"/>
+<include file="$(find-pkg-share ur_description)/launch/view_ur.launch.py">
+    <arg name="ur_type" value="ur5e"/>
+</include>
 <!-- Start control system -->
 <include file="$(find-pkg-share puma560_description)/launch/control_system.launch.py"/>
 <!-- Read robot_description an dspawn in gazebo running sim -->

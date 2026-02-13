@@ -1,16 +1,41 @@
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/float64_multi_array.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 #include "ament_index_cpp/get_package_share_directory.hpp"
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.h>
+#include <tf2/LinearMath/Transform.h>
+#include <tf2/LinearMath/Matrix3x3.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.hpp>
 #include <cmath>
-#include <chrono>
 #include <string>
 #include "config.h"
+#include "robot_model.h"
 
-//#define SPEED_TUNING
+// #define SPEED_TUNING
+#define ARR_DIV 100
 
-const std::string joint_name[] = {"platform", "shoulder", "elbow", "wrist_revolute", "wrist_bend", "effector_revolute"};
+const std::string joint_name[] = {"shoulder_pan_joint",
+                                  "shoulder_lift_joint",
+                                  "elbow_joint",
+                                  "wrist_1_joint",
+                                  "wrist_2_joint",
+                                  "wrist_3_joint"};
 int joint_num[] = {0, 1, 2, 3, 4, 5};
+
+std::string link_name[] = { "shoulder",
+                            "upper_arm",
+                            "forearm",
+                            "wrist_1",
+                            "wrist_2",
+                            "wrist_3"};
+
+float max_torque[] = {150.0, 150.0, 150.0, 28.0, 28.0, 28.0};
+float max_acceleration[] = {40, 10, 20, 40, 40, 40};
+
+const std::string links_config_path = ament_index_cpp::get_package_share_directory("ur_description")+
+                "/config/ur5e/physical_parameters.yaml";
 
 using std::placeholders::_1;
 
@@ -32,13 +57,26 @@ public:
             "/effort_controller/commands", 10);
         debug_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
             "/puma560/debug", 10);
+        vectors_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(
+            "/puma560/vectors", 10);
 
         timer_ = this->create_wall_timer(
             std::chrono::milliseconds(10), std::bind(&ControlSystem::control_algorithm, this));
 
+        tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+        tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
+
         initPID(speed_controller, position_controller, ament_index_cpp::get_package_share_directory("puma560_description")+
                 "/config/pid_values.yaml");
         
+        for(int i = 0; i<6; i++){
+            links[i].read_config(link_name[i], links_config_path);
+        }
+
+        base_speed.setValue(0.0, 0.0, 0.0);
+        base_acceleration.setValue(0.0, 0.0, 9.81);
+        gripper_load.setValue(0.0, 0.0, 0.0);
+        gripper_torque.setValue(0.0, 0.0, 0.0);
     }
 
 private:
@@ -58,14 +96,208 @@ private:
             #else 
                 eps = joint_desired_speed[i] - joint_speed[i];
             #endif
-            debug_message.data[i] = speed_controller[i].getDerivative(eps);
-            message.data[i] = speed_controller[i].control(eps);
+            joint_control[i] = speed_controller[i].control(eps);
+            if(abs(joint_control[i]) > max_acceleration[i])
+                joint_control[i] = joint_control[i]>0 ? max_acceleration[i] : -max_acceleration[i];
+                
+            debug_message.data[i] = joint_control[i];
+        }
+
+
+        if(!links_init()) return; //Links not ready
+        visualization_msgs::msg::MarkerArray marker_array;
+        
+        // Forward recursion. First link processing
+        if (tf_buffer_->canTransform(links[0].get_name()+"_link", 
+                    "base_link", tf2::TimePointZero)){  
+
+            geometry_msgs::msg::TransformStamped rotationTransform;
+            tf2::Transform R;
+
+            rotationTransform = tf_buffer_->lookupTransform(links[0].get_name()+"_link", 
+                "base_link", tf2::TimePointZero);
+            tf2::fromMsg(rotationTransform.transform, R);
+            R.setOrigin(tf2::Vector3(0, 0, 0));
+
+            auto CoM = links[0].get_CoM();
+
+            link_omega[0] = joint_speed[0]*tf2::Vector3(0, 0, 1);
+            link_omega_dot[0] = joint_control[0]*tf2::Vector3(0, 0, 1);
+            link_origin_acceleration[0] = R*base_acceleration;
+            link_acceleration[0] = link_origin_acceleration[0] + link_omega_dot[0].cross(CoM) + 
+                        link_omega[0].cross(link_omega[0].cross(CoM));
+        }
+        
+        // Forward recursion. 2-6 links processing
+        for(int i=1; i<6; i++){
+            if (tf_buffer_->canTransform(links[i].get_name()+"_link", 
+                    links[i-1].get_name()+"_link", tf2::TimePointZero)){
+
+                auto CoM = links[i].get_CoM();
+
+                geometry_msgs::msg::TransformStamped rotationTransform;
+                tf2::Transform R;
+
+                rotationTransform = tf_buffer_->lookupTransform(links[i].get_name()+"_link", 
+                    links[i-1].get_name()+"_link", tf2::TimePointZero);
+                tf2::fromMsg(rotationTransform.transform, R);
+                R.setOrigin(tf2::Vector3(0, 0, 0));
+
+                link_omega[i] = R*link_omega[i-1] + joint_speed[i]*tf2::Vector3(0, 0, 1);
+
+                tf2::Vector3 link_omega_rot = joint_speed[i] * (R*link_omega[i-1]); // link omega rotated
+                link_omega_dot[i] = R*link_omega_dot[i-1] + joint_control[i]*tf2::Vector3(0, 0, 1) +
+                    link_omega_rot.cross(tf2::Vector3(0, 0, 1)); 
+
+                link_origin_acceleration[i] = R*(link_origin_acceleration[i-1] +
+                    link_omega_dot[i-1].cross(links[i-1].get_r_next()) + 
+                    link_omega[i-1].cross(link_omega[i-1].cross(links[i-1].get_r_next())));
+
+                link_acceleration[i] = link_origin_acceleration[i] + 
+                    link_omega_dot[i].cross(CoM) + 
+                    link_omega[i].cross(link_omega[i].cross(CoM));
+            }
+        }
+
+        // Reverse recursion. 6 link processing
+
+        auto CoM = links[5].get_CoM();
+
+        link_force[5] = gripper_load + links[5].get_mass()*link_acceleration[5]; // TODO: Make load and torque in global coordinate system?
+        link_torque[5] = gripper_torque - link_force[5].cross(CoM) + gripper_load.cross(links[5].get_ri()) +
+            links[5].get_inertia()*link_omega_dot[5] +
+            link_omega[5].cross(links[5].get_inertia()*link_omega[5]);  // Add torque from gripper later
+        if(abs(link_torque[5].z()) > max_torque[5]) link_torque[5][2] = 
+            link_torque[5].z()>0 ? max_torque[5] : -max_torque[5];
+        joint_torque[5] = link_torque[5]*tf2::Vector3(0, 0, 1);
+        message.data[5] = joint_torque[5].z();
+
+        auto marker = create_vector_marker(5, links[5].get_name()+"_link", 0, 0, 0, 
+            link_torque[5].x()/ARR_DIV, link_torque[5].y()/ARR_DIV, link_torque[5].z()/ARR_DIV);
+        marker_array.markers.push_back(marker);
+        //Reverse recursion. 5-1 link processing
+
+        for(int i=4; i>=0; i--){
+            if (tf_buffer_->canTransform(links[i].get_name()+"_link", 
+                    links[i+1].get_name()+"_link", tf2::TimePointZero)){
+                auto CoM = links[i].get_CoM();
+
+                geometry_msgs::msg::TransformStamped rotationTransform;
+                tf2::Transform R;
+
+                rotationTransform = tf_buffer_->lookupTransform(links[i].get_name()+"_link", 
+                    links[i+1].get_name()+"_link", tf2::TimePointZero);
+                tf2::fromMsg(rotationTransform.transform, R);
+                R.setOrigin(tf2::Vector3(0, 0, 0));
+
+                link_force[i] = R*link_force[i+1] + links[i].get_mass()*link_acceleration[i];
+                
+                tf2::Vector3 link_force_rot = R*link_force[i+1];
+                link_torque[i] = R*link_torque[i+1] - link_force[i].cross(CoM) + link_force_rot.cross(links[i].get_ri()) +
+                        links[i].get_inertia()*link_omega_dot[i] + 
+                        link_omega[i].cross(links[i].get_inertia()*link_omega[i]);
+
+                if(abs(link_torque[i].z()) > max_torque[i]) link_torque[i][2] = 
+                    link_torque[i].z()>0 ? max_torque[i] : -max_torque[i];
+
+                joint_torque[i] = link_torque[i]*tf2::Vector3(0, 0, 1);
+                message.data[i] = joint_torque[i].z();
+
+                auto marker = create_vector_marker(i, links[i].get_name()+"_link", 0, 0, 0, 
+                    joint_torque[i].x()/ARR_DIV, joint_torque[i].y()/ARR_DIV, joint_torque[i].z()/ARR_DIV);
+                marker_array.markers.push_back(marker);
+            }
         }
 
         publisher_->publish(message);
+        vectors_->publish(marker_array);
         debug_->publish(debug_message);
-
     }
+
+    /// @brief Marker creation func
+    /// @param id unique id
+    /// @param x ass x coordinate
+    /// @param y ass y coordinate 
+    /// @param z ass z coordinate 
+    /// @param tx tip x coordinate
+    /// @param ty tip y coordinate 
+    /// @param tz tip z coordinate 
+    /// @param  
+    /// @return 
+    visualization_msgs::msg::Marker create_vector_marker(
+    int id, std::string frame_id,
+    double x, double y, double z, 
+    double tx, double ty, double tz)
+  {
+    visualization_msgs::msg::Marker marker;
+    marker.header.frame_id = frame_id;
+    marker.header.stamp = this->now();
+    marker.ns = "vector_array";
+    marker.id = id; // УНИКАЛЬНЫЙ ID для каждого маркера!
+    marker.type = visualization_msgs::msg::Marker::ARROW;
+    marker.action = visualization_msgs::msg::Marker::ADD;
+    
+    geometry_msgs::msg::Point start, end;
+    start.x = x;
+    start.y = y;
+    start.z = z;
+
+    end.x = tx;
+    end.y = ty;
+    end.z = tz;
+
+    marker.points.push_back(start);
+    marker.points.push_back(end);
+    
+    marker.color.r = 1.0;
+    marker.color.g = 0;
+    marker.color.b = 0;
+    marker.color.a = 1.0;
+
+    marker.scale.x = 0.01; // толщина стрелки (диаметр вала)
+    marker.scale.y = 0.02; // диаметр наконечника
+
+    return marker;
+  }
+
+  bool links_init(void){
+    bool init = true;
+    for(int i=0; i<6; i++)
+    {
+        if(!links[i].init()) init = false;
+    }
+    return init;
+  }
+
+  void init_links(void){
+    for(int i=0; i<6; i++){
+        auto CoM = links[i].get_CoM();
+        
+        if (i!=5){
+            if (tf_buffer_->canTransform(links[i].get_name()+"_link", 
+                    links[i+1].get_name()+"_link", tf2::TimePointZero)){
+            
+                geometry_msgs::msg::TransformStamped offsetTransform;
+                tf2::Transform transform;
+                tf2::Vector3 next_origin; 
+                tf2::Vector3 ri;
+
+                offsetTransform = tf_buffer_->lookupTransform(links[i].get_name()+"_link", 
+                    links[i+1].get_name()+"_link", tf2::TimePointZero);
+                tf2::fromMsg(offsetTransform.transform, transform);
+                next_origin = transform.getOrigin();
+
+                links[i].set_r_next(next_origin);
+                ri = CoM - next_origin;
+                links[i].set_ri(ri);
+            }
+        }
+        else {
+            links[i].set_ri(tf2::Vector3(0, 0, 0));
+            links[i].set_r_next(tf2::Vector3(0, 0, 0));
+        }
+    }
+  }
 
     bool joints_enumerated(const sensor_msgs::msg::JointState & msg){
         bool joints_enumerated = true;
@@ -89,6 +321,7 @@ private:
             joint_position[joint_num[i]] = msg.position[i];
             joint_speed[joint_num[i]] = msg.velocity[i];
         }
+        if(!links_init()) init_links();
     }
 
     void pid_values_callback(const std_msgs::msg::Float64MultiArray & msg)
@@ -130,16 +363,32 @@ private:
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_;
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr debug_;
+    rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr vectors_;
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_;
     rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr pid_values_;
     rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr desired_joint_positions_;
     rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr desired_joint_speeds_;
     PID speed_controller[6];
     PID position_controller[6];
+    LINK links[6];
     double joint_position[6];
     double joint_speed[6];
     double joint_desired_position[6];
     double joint_desired_speed[6];
+    double joint_control[6]={0,};
+    tf2::Vector3 base_speed;
+    tf2::Vector3 base_acceleration;
+    tf2::Vector3 gripper_load;
+    tf2::Vector3 gripper_torque;
+    tf2::Vector3 link_omega[6];
+    tf2::Vector3 link_omega_dot[6];
+    tf2::Vector3 link_origin_acceleration[6];
+    tf2::Vector3 link_acceleration[6];
+    tf2::Vector3 link_force[6];
+    tf2::Vector3 link_torque[6];
+    tf2::Vector3 joint_torque[6];
+    std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+    std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 };
 
 

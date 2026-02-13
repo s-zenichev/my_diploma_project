@@ -1,6 +1,6 @@
 controller_manager:
   ros__parameters:
-      update_rate: 100
+      update_rate: 1000
       use_sim_time: true
 
       effort_controller:
@@ -11,9 +11,9 @@ controller_manager:
 
 effort_controller:
   ros__parameters:
-    publish_rate: 100
+    publish_rate: 1000
 
-    base_frame_id: world
+    base_frame_id: base_link
 
     joints:
       - platform

@@ -12,7 +12,10 @@ find_package(gazebo_ros REQUIRED)
 find_package(puma560_gazebo REQUIRED)
 find_package(urdf REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
 find_package(ament_index_cpp REQUIRED)
+find_package(tf2_ros REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
@@ -27,15 +30,19 @@ if(BUILD_TESTING)
 endif()
 
 set (SOURCES
+    src/robot_model.cpp
     src/control_system.cpp
     src/pid.cpp)
 
 set (HEADERS
+    include/robot_model.h
     include/pid.h)
+    
 add_executable(control_system ${HEADERS} ${SOURCES})
 target_include_directories(control_system PRIVATE include)
 target_link_libraries(control_system yaml-cpp)
-ament_target_dependencies(control_system rclcpp std_msgs sensor_msgs)
+ament_target_dependencies(control_system rclcpp std_msgs
+sensor_msgs visualization_msgs tf2_ros tf2_geometry_msgs)
 
 install(TARGETS
   control_system

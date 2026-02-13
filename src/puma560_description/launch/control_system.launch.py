@@ -1,6 +1,7 @@
 
 from launch.actions import ExecuteProcess
 from launch import LaunchDescription
+from launch_ros.actions import Node
 
 
 def generate_launch_description():
@@ -17,7 +18,14 @@ def generate_launch_description():
             output='screen'
     )
 
+    custom_control = Node(
+            package='puma560_description',
+            executable='control_system',
+            parameters=[{'use_sim_time': True}]
+        )
+
     return LaunchDescription([
         load_joint_state_broadcaster,
-        load_joint_effort_controller
+        load_joint_effort_controller,
+        custom_control
     ])

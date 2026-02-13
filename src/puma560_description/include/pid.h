@@ -20,12 +20,15 @@ class PID{
         }
         void setI(double I){
             _i = I;
+            _integrator = 0;
         }
         void setIMin(double I_min){
             _i_min = I_min;
+            _integrator = 0;
         }
         void setIMax(double I_max){
             _i_max = I_max;
+            _integrator = 0;
         }
         void setD(double D){
             _d = D;
