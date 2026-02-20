@@ -10,20 +10,7 @@
     <!--CHAINS: When a chain is specified, all the links along the chain (including endpoints) are included in the group. Additionally, all the joints that are parents to included links are also included. This means that joints along the chain and the parent joint of the base link are included in the group-->
     <!--SUBGROUPS: Groups can also be formed by referencing to already defined group names-->
     <group name="arm">
-        <joint name="base_joint"/>
-        <joint name="base_link-base_fixed_joint"/>
-        <joint name="base_link-base_link_inertia"/>
-        <joint name="shoulder_pan_joint"/>
-        <joint name="shoulder_lift_joint"/>
-        <joint name="elbow_joint"/>
-        <joint name="wrist_1_joint"/>
-        <joint name="wrist_2_joint"/>
-        <joint name="wrist_3_joint"/>
-        <joint name="wrist_3-flange"/>
-        <joint name="dummy_joint"/>
-    </group>
-    <group name="dummy_tool">
-        <joint name="flange-tool0"/>
+        <chain base_link="base_link" tip_link="tool0"/>
     </group>
     <!--GROUP STATES: Purpose: Define a named state for a particular group, in terms of joint values. This is useful to define states like 'folded arms'-->
     <group_state name="default" group="arm">
@@ -58,8 +45,6 @@
         <joint name="wrist_2_joint" value="-1.2537"/>
         <joint name="wrist_3_joint" value="0"/>
     </group_state>
-    <!--END EFFECTOR: Purpose: Represent information about an end effector.-->
-    <end_effector name="dummy_effector" parent_link="flange" group="dummy_tool" parent_group="arm"/>
     <!--VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference (considered fixed with respect to the robot)-->
     <virtual_joint name="dummy_joint" type="fixed" parent_frame="world" child_link="base_link"/>
     <!--DISABLE COLLISIONS: By default it is assumed that any link of the robot could potentially come into collision with any other link in the robot. This tag disables collision checking between a specified pair of links. -->
