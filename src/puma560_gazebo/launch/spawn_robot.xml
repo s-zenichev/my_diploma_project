@@ -15,6 +15,11 @@
     <arg name="use_sim_time" value="true"/>
 </include>
 <executable cmd="ros2 param set /move_group use_sim_time true" output="screen"/>
+
+<!-- Start rviz-->
+<include file="$(find-pkg-share ur_motion_planner)/launch/moveit_rviz.launch.py"/>
+<executable cmd="ros2 param set /rviz use_sim_time true" output="screen"/>
+
 <!-- Read robot_description an dspawn in gazebo running sim -->
 <include file="$(find-pkg-share puma560_gazebo)/launch/spawn_robot_description.launch.py"/>
 </launch>
