@@ -77,6 +77,7 @@ public:
         base_acceleration.setValue(0.0, 0.0, 9.81);
         gripper_load.setValue(0.0, 0.0, 0.0);
         gripper_torque.setValue(0.0, 0.0, 0.0);
+        position_control = true;
     }
 
 private:
@@ -89,18 +90,19 @@ private:
         for (int i=0; i<6; i++)
         {
             double eps;
-            #ifndef SPEED_TUNING
+            if(position_control){
                 eps = joint_desired_position[i] - joint_position[i];
-                double _desired_speed = position_controller[i].control(eps);
+                double _desired_speed = position_controller[i].control(eps) 
+                                        + joint_desired_speed[i] - joint_speed[i]; // Feedforward
                 eps = _desired_speed - joint_speed[i];
-            #else 
+                debug_message.data[i] = _desired_speed;
+            }
+            else{
                 eps = joint_desired_speed[i] - joint_speed[i];
-            #endif
+            }
             joint_control[i] = speed_controller[i].control(eps);
             if(abs(joint_control[i]) > max_acceleration[i])
                 joint_control[i] = joint_control[i]>0 ? max_acceleration[i] : -max_acceleration[i];
-                
-            debug_message.data[i] = joint_control[i];
         }
 
 
@@ -347,13 +349,16 @@ private:
     }
     void desired_positions_callback(const std_msgs::msg::Float64MultiArray & msg)
     {
+        position_control = true;
         for (int i=0; i<6; i++)
         {
             joint_desired_position[i] = msg.data[i];
+            if(msg.data.size() == 12) joint_desired_speed[i] = msg.data[i+6];
         }
     }
     void desired_speeds_callback(const std_msgs::msg::Float64MultiArray & msg)
     {
+        position_control = false;
         for (int i=0; i<6; i++)
         {
             joint_desired_speed[i] = msg.data[i];
@@ -376,6 +381,7 @@ private:
     double joint_desired_position[6];
     double joint_desired_speed[6];
     double joint_control[6]={0,};
+    bool position_control;
     tf2::Vector3 base_speed;
     tf2::Vector3 base_acceleration;
     tf2::Vector3 gripper_load;

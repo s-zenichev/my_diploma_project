@@ -1,5 +1,6 @@
 <?xml version='1.0' ?>
 <launch>
+<arg name="use_motion_planner" default="true" description="Enable motion planner usage"/>
 <!-- Start world -->
 <include file="$(find-pkg-share puma560_gazebo)/launch/start_world.launch.py"/>
 <!-- Publish URDF file in robot_description topic -->
@@ -8,13 +9,17 @@
 </include>
 <!-- Start control system -->
 <include file="$(find-pkg-share puma560_description)/launch/control_system.launch.py"/>
-<!-- Start adapter service -->
-<node pkg="ur_motion_planner" exec="motion_planner" output="screen"/>
-<!-- Start MoveIt2 -->
-<include file="$(find-pkg-share ur_motion_planner)/launch/move_group.launch.py">
-    <arg name="use_sim_time" value="true"/>
-</include>
-<executable cmd="ros2 param set /move_group use_sim_time true" output="screen"/>
+
+<group if="$(var use_motion_planner)">
+    <!-- Start adapter service -->
+    <node pkg="ur_motion_planner" exec="motion_planner" output="screen"/>
+    <!-- Start MoveIt2 -->
+    <include file="$(find-pkg-share ur_motion_planner)/launch/move_group.launch.py">
+        <arg name="use_sim_time" value="true"/>
+    </include>
+    <executable cmd="ros2 param set /move_group use_sim_time true" output="screen"/>
+</group>
+<include file="$(find-pkg-share puma560_gazebo)/launch/pid_tuner.launch.py" unless="$(var use_motion_planner)"/>
 
 <!-- Start rviz-->
 <include file="$(find-pkg-share ur_motion_planner)/launch/moveit_rviz.launch.py"/>
