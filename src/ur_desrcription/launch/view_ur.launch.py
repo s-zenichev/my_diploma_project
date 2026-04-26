@@ -155,17 +155,9 @@ def generate_launch_description():
         output="screen",
         parameters=[robot_description],
     )
-    rviz_node = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        output="log",
-        arguments=["-d", rviz_config_file],
-    )
 
     nodes_to_start = [
         robot_state_publisher_node,
-        rviz_node,
     ]
 
     return LaunchDescription(declared_arguments + nodes_to_start)
