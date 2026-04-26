@@ -10,31 +10,34 @@
 joint_limits:
   shoulder_pan_joint:
     # acceleration limits are not publicly available
-    has_acceleration_limits: false
+    has_acceleration_limits: true
     has_effort_limits: true
     has_position_limits: true
     has_velocity_limits: true
     max_effort: 150.0
+    max_acceleration: 40.0 # just an educated guess. Not official information
     max_position: !degrees  360.0
     max_velocity: !degrees  180.0
     min_position: !degrees -360.0
   shoulder_lift_joint:
     # acceleration limits are not publicly available
-    has_acceleration_limits: false
+    has_acceleration_limits: true
     has_effort_limits: true
     has_position_limits: true
     has_velocity_limits: true
     max_effort: 150.0
+    max_acceleration: 10.0 # just an educated guess. Not official information
     max_position: !degrees  360.0
     max_velocity: !degrees  180.0
     min_position: !degrees -360.0
   elbow_joint:
     # acceleration limits are not publicly available
-    has_acceleration_limits: false
+    has_acceleration_limits: true
     has_effort_limits: true
     has_position_limits: true
     has_velocity_limits: true
     max_effort: 150.0
+    max_acceleration: 20.0 # just an educated guess. Not official information
     # we artificially limit this joint to half its actual joint position limit
     # to avoid (MoveIt/OMPL) planning problems, as due to the physical
     # construction of the robot, it's impossible to rotate the 'elbow_joint'
@@ -50,31 +53,34 @@ joint_limits:
     min_position: !degrees -180.0
   wrist_1_joint:
     # acceleration limits are not publicly available
-    has_acceleration_limits: false
+    has_acceleration_limits: true
     has_effort_limits: true
     has_position_limits: true
     has_velocity_limits: true
     max_effort: 28.0
+    max_acceleration: 40.0 # just an educated guess. Not official information
     max_position: !degrees  360.0
     max_velocity: !degrees  180.0
     min_position: !degrees -360.0
   wrist_2_joint:
     # acceleration limits are not publicly available
-    has_acceleration_limits: false
+    has_acceleration_limits: true
     has_effort_limits: true
     has_position_limits: true
     has_velocity_limits: true
     max_effort: 28.0
+    max_acceleration: 40.0 # just an educated guess. Not official information
     max_position: !degrees  360.0
     max_velocity: !degrees  180.0
     min_position: !degrees -360.0
   wrist_3_joint:
     # acceleration limits are not publicly available
-    has_acceleration_limits: false
+    has_acceleration_limits: true
     has_effort_limits: true
     has_position_limits: true
     has_velocity_limits: true
     max_effort: 28.0
+    max_acceleration: 40.0 # just an educated guess. Not official information
     max_position: !degrees  360.0
     max_velocity: !degrees  180.0
     min_position: !degrees -360.0

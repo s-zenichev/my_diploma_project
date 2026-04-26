@@ -7,17 +7,21 @@ moveit_setup_assistant_config:
   package_settings:
     author_name: Sergey Zenichev
     author_email: s.zenichev@yandex.ru
-    generated_timestamp: 1771060932
+    generated_timestamp: 1777188805
   control_xacro:
     command:
       - position
+      - velocity
     state:
       - position
+      - velocity
   modified_urdf:
     xacros:
       - control_xacro
   control_xacro:
     command:
       - position
+      - velocity
     state:
       - position
+      - velocity

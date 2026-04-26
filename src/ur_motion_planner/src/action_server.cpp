@@ -32,7 +32,7 @@ public:
       std::bind(&MyTrajectoryActionServer::handle_cancel, this, std::placeholders::_1),
       std::bind(&MyTrajectoryActionServer::handle_accepted, this, std::placeholders::_1));
 
-    // Создаём publisher в топик, который слушает ваша система управления
+    // Создаём publisher в топик, который слушает система управления
     publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>("/desired/joint_positions", 10);
     // Create timer and immideately stop it
     timer_ = this->create_wall_timer(
@@ -58,12 +58,14 @@ private:
 
     rclcpp_action::CancelResponse handle_cancel(
         const std::shared_ptr<GoalHandle> goal_handle){
+
         RCLCPP_INFO(this->get_logger(), "Received cancel request");
         // Здесь можно остановить выполнение траектории, если оно идёт
         return rclcpp_action::CancelResponse::ACCEPT;
     }
 
     void handle_accepted(const std::shared_ptr<GoalHandle> goal_handle){
+
         goal_handle_ = goal_handle; // Save handler pointer
         const auto goal = goal_handle->get_goal();
         result_ = std::make_shared<FollowJointTrajectory::Result>();
@@ -106,11 +108,12 @@ private:
 
         // Создаем сообщение
         auto msg = std_msgs::msg::Float64MultiArray();
-        msg.data.resize(6);
+        msg.data.resize(12);
 
         if(interp_index == arr_size-1){
             for(int i=0; i<6; i++){
                 msg.data[i] = trajectory->points[interp_index].positions[joint_num[i]];
+                msg.data[i+6] = 0; // Stop at the end position
             }
             publisher_->publish(msg);
 
@@ -130,6 +133,10 @@ private:
                 msg.data[i] = trajectory->points[interp_index].positions[joint_num[i]];
                 msg.data[i] += (trajectory->points[interp_index+1].positions[joint_num[i]] -
                                 trajectory->points[interp_index].positions[joint_num[i]])*k;
+
+                msg.data[i+6] = trajectory->points[interp_index].velocities[joint_num[i]];
+                msg.data[i+6] += (trajectory->points[interp_index+1].velocities[joint_num[i]] -
+                                trajectory->points[interp_index].velocities[joint_num[i]])*k;
             }
 
             publisher_->publish(msg);

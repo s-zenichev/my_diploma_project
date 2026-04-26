@@ -7,9 +7,7 @@ moveit_simple_controller_manager:
     - my_motion_planner
 
   my_motion_planner:
-    action_ns: ""
     type: FollowJointTrajectory
-    default: true
     joints:
       - shoulder_pan_joint
       - shoulder_lift_joint
@@ -17,3 +15,5 @@ moveit_simple_controller_manager:
       - wrist_1_joint
       - wrist_2_joint
       - wrist_3_joint
+    action_ns: ""
+    default: true
