@@ -53,7 +53,7 @@ public:
             "/desired/joint_speeds", 10, std::bind(&ControlSystem::desired_speeds_callback, this, _1));
       
         publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
-            "/effort_controller/commands", 10);
+            "/motor_driver/torque", 10);
         debug_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
             "/puma560/debug", 10);
         vectors_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(
@@ -76,6 +76,7 @@ public:
         base_acceleration.setValue(0.0, 0.0, 9.8);
         gripper_load.setValue(0.0, 0.0, 0.0);
         gripper_torque.setValue(0.0, 0.0, 0.0);
+        position_control = true;
     }
 
 private:
@@ -88,13 +89,14 @@ private:
         for (int i=0; i<6; i++)
         {
             double eps;
-            #ifndef SPEED_TUNING
+            if(position_control){
                 eps = joint_desired_position[i] - joint_position[i];
                 double _desired_speed = position_controller[i].control(eps);
                 eps = _desired_speed - joint_speed[i];
-            #else 
+            }
+            else{ 
                 eps = joint_desired_speed[i] - joint_speed[i];
-            #endif
+            }
             message.data[i] = speed_controller[i].control(eps);
             
         }
@@ -329,7 +331,7 @@ private:
 
     void pid_values_callback(const std_msgs::msg::Float64MultiArray & msg)
     {
-        #ifdef SPEED_TUNING
+        if(!position_control){
             int joint_num = msg.data[0];
             speed_controller[joint_num].setP(msg.data[1]);
             speed_controller[joint_num].setI(msg.data[2]);
@@ -337,7 +339,8 @@ private:
             speed_controller[joint_num].setN(msg.data[4]);
             speed_controller[joint_num].setIMin(msg.data[5]);
             speed_controller[joint_num].setIMax(msg.data[6]);
-        #else
+        }
+        else{
             int joint_num = msg.data[0];
             position_controller[joint_num].setP(msg.data[1]);
             position_controller[joint_num].setI(msg.data[2]);
@@ -345,11 +348,11 @@ private:
             position_controller[joint_num].setN(msg.data[4]);
             position_controller[joint_num].setIMin(msg.data[5]);
             position_controller[joint_num].setIMax(msg.data[6]);
-
-        #endif
+        }
     }
     void desired_positions_callback(const std_msgs::msg::Float64MultiArray & msg)
     {
+        position_control = true;
         for (int i=0; i<6; i++)
         {
             joint_desired_position[i] = msg.data[i];
@@ -357,12 +360,14 @@ private:
     }
     void desired_speeds_callback(const std_msgs::msg::Float64MultiArray & msg)
     {
+        position_control = false;
         for (int i=0; i<6; i++)
         {
             joint_desired_speed[i] = msg.data[i];
         }
     }
 
+    bool position_control;
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_;
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr debug_;
