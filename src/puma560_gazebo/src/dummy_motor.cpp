@@ -5,12 +5,13 @@
 #include "sensor_msgs/msg/joint_state.hpp"
 #include <cmath>
 #include <chrono>
+#include <iostream>
 
 // Filter time constant, ms
 #define TIME_CONST 3.0
 
 #define SIGN(x) ((x) < 0 ? -1 : 1)
-#define NO_FRICTION
+#undef NO_FRICTION
 
 using std::placeholders::_1;
 
@@ -23,11 +24,11 @@ const std::string joint_name[] = {"shoulder_pan_joint",
 int joint_num[] = {0, 1, 2, 3, 4, 5};
 
 // Friction parameters
-double T_brk[] = {3.0, 3.0, 3.0, 0.56, 0.56, 0.56};
-double T_c[] = {0.0225, 0.0225, 0.0225, 0.0028, 0.0028, 0.0028};
-double omega_th[] = {0.03, 0.03, 0.03, 0.02, 0.02, 0.02};
-double C[] = {1.5, 1.5, 1.5, 2, 2, 2};
-double Fr[] = {0.005, 0.005, 0.005, 0.001, 0.001, 0.001}; 
+double T_brk[] = {0.5, 0.5, 0.5, 0.15, 0.15, 0.15};
+double T_c[] = {0.4, 0.4, 0.4, 0.1, 0.1, 0.1};
+double omega_th[] = {0.01, 0.01, 0.01, 0.01, 0.01, 0.01};
+double C[] = {1.5, 1.5, 1.5, 1.5, 1.5, 1.5};
+double Fr[] = {0.06, 0.06, 0.06, 0.06, 0.06, 0.06}; 
 
 class DummyMotor : public rclcpp::Node
 {
@@ -59,6 +60,7 @@ public:
 
     void time_const_callback(const std_msgs::msg::Float64 & msg){
         alpha = std::exp(-msg.data);
+        std::cout << "New alpha is: " << alpha << std::endl;
     }
 
     bool joints_enumerated(const sensor_msgs::msg::JointState & msg){
