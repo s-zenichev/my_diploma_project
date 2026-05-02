@@ -14,6 +14,7 @@ find_package(rclpy REQUIRED)
 find_package(puma560_description REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(gazebo_dev REQUIRED)
 find_package(gazebo_ros REQUIRED)
 find_package(gazebo REQUIRED)
@@ -70,8 +71,20 @@ target_include_directories(pid_tuner PRIVATE include)
 target_link_libraries(pid_tuner Qt5::Widgets)
 ament_target_dependencies(pid_tuner rclcpp std_msgs)
 
+add_executable(dummy_motor src/dummy_motor.cpp)
+ament_target_dependencies(dummy_motor rclcpp std_msgs sensor_msgs)
+
+add_executable(data_logger src/data_logger.cpp)
+ament_target_dependencies(data_logger rclcpp std_msgs sensor_msgs)
+
 install(TARGETS
   pid_tuner
+  DESTINATION lib/${PROJECT_NAME})
+
+
+install(TARGETS
+  dummy_motor
+  data_logger
   DESTINATION lib/${PROJECT_NAME})
 
 install(

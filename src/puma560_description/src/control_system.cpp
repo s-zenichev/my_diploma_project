@@ -54,7 +54,7 @@ public:
             "/desired/joint_speeds", 10, std::bind(&ControlSystem::desired_speeds_callback, this, _1));
       
         publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
-            "/effort_controller/commands", 10);
+            "/motor_driver/torque", 10);
         debug_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
             "/puma560/debug", 10);
         vectors_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(
@@ -328,7 +328,7 @@ private:
 
     void pid_values_callback(const std_msgs::msg::Float64MultiArray & msg)
     {
-        #ifdef SPEED_TUNING
+        if(!position_control){
             int joint_num = msg.data[0];
             speed_controller[joint_num].setP(msg.data[1]);
             speed_controller[joint_num].setI(msg.data[2]);
@@ -336,7 +336,8 @@ private:
             speed_controller[joint_num].setN(msg.data[4]);
             speed_controller[joint_num].setIMin(msg.data[5]);
             speed_controller[joint_num].setIMax(msg.data[6]);
-        #else
+        }
+        else{
             int joint_num = msg.data[0];
             position_controller[joint_num].setP(msg.data[1]);
             position_controller[joint_num].setI(msg.data[2]);
@@ -344,8 +345,7 @@ private:
             position_controller[joint_num].setN(msg.data[4]);
             position_controller[joint_num].setIMin(msg.data[5]);
             position_controller[joint_num].setIMax(msg.data[6]);
-
-        #endif
+        }
     }
     void desired_positions_callback(const std_msgs::msg::Float64MultiArray & msg)
     {

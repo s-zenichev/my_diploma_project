@@ -9,6 +9,7 @@
 </include>
 <!-- Start control system -->
 <include file="$(find-pkg-share puma560_description)/launch/control_system.launch.py"/>
+<!-- Start motor driver -->
 
 <group if="$(var use_motion_planner)">
     <!-- Start adapter service -->

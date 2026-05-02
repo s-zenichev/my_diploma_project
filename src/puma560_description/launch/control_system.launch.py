@@ -24,8 +24,15 @@ def generate_launch_description():
             parameters=[{'use_sim_time': True}]
         )
 
+    motor_driver = Node(
+            package='puma560_gazebo',
+            executable='dummy_motor',
+            parameters=[{'use_sim_time': True}]
+        )
+
     return LaunchDescription([
         load_joint_state_broadcaster,
         load_joint_effort_controller,
-        custom_control
+        custom_control,
+        motor_driver
     ])
