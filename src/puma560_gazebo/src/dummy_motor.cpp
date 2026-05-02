@@ -1,6 +1,7 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include "std_msgs/msg/float64_multi_array.hpp"
+#include "std_msgs/msg/float64.hpp"
 #include "sensor_msgs/msg/joint_state.hpp"
 #include <cmath>
 #include <chrono>
@@ -33,10 +34,11 @@ class DummyMotor : public rclcpp::Node
 public:
     DummyMotor(void) : Node("motor_driver")
     {   
-        period = 1.0; // ms
 
         joint_states_ = this->create_subscription<sensor_msgs::msg::JointState>(
             "/joint_states", 10, std::bind(&DummyMotor::joint_topic_callback, this, _1)); 
+        time_const_ = this->create_subscription<std_msgs::msg::Float64>(
+            "/motor_driver/time_const", 10, std::bind(&DummyMotor::time_const_callback, this, _1)); 
         desired_torque_ = this->create_subscription<std_msgs::msg::Float64MultiArray>(
             "/motor_driver/torque", 10, std::bind(&DummyMotor::torque_callback, this, _1));
         torque_publisher_ = this->create_publisher<std_msgs::msg::Float64MultiArray>(
@@ -53,6 +55,10 @@ public:
         for(int i=0; i<6; i++){
             desired_torque[i] = msg.data[i];
         }
+    }
+
+    void time_const_callback(const std_msgs::msg::Float64 & msg){
+        alpha = std::exp(-msg.data);
     }
 
     bool joints_enumerated(const sensor_msgs::msg::JointState & msg){
@@ -108,6 +114,7 @@ private:
     double joint_speed[6] = {0,};
     rclcpp::TimerBase::SharedPtr timer_; 
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr torque_publisher_;
+    rclcpp::Subscription<std_msgs::msg::Float64>::SharedPtr time_const_;
     rclcpp::Subscription<std_msgs::msg::Float64MultiArray>::SharedPtr desired_torque_;
     rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_states_;
     
