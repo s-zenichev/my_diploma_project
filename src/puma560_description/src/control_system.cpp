@@ -13,7 +13,7 @@
 #include "config.h"
 #include "robot_model.h"
 
-// #define SPEED_TUNING
+#undef OLD_CONTROL
 #define ARR_DIV 100
 
 const std::string joint_name[] = {"shoulder_pan_joint",
@@ -65,9 +65,14 @@ public:
 
         tf_buffer_ = std::make_shared<tf2_ros::Buffer>(this->get_clock());
         tf_listener_ = std::make_shared<tf2_ros::TransformListener>(*tf_buffer_);
-
-        initPID(speed_controller, position_controller, ament_index_cpp::get_package_share_directory("puma560_description")+
+        
+        #ifndef OLD_CONTROL
+            initPID(speed_controller, position_controller, ament_index_cpp::get_package_share_directory("puma560_description")+
                 "/config/pid_values.yaml");
+        #else
+            initPID(speed_controller, position_controller, ament_index_cpp::get_package_share_directory("puma560_description")+
+                "/config/old_pid_values.yaml");
+        #endif
         
         for(int i = 0; i<6; i++){
             links[i].read_config(link_name[i], links_config_path);
@@ -101,9 +106,18 @@ private:
                 eps = joint_desired_speed[i] - joint_speed[i];
             }
             joint_control[i] = speed_controller[i].control(eps);
+
+            #ifdef OLD_CONTROL
+                message.data[i] = joint_control[i];
+            #endif
+    
             if(abs(joint_control[i]) > max_acceleration[i])
                 joint_control[i] = joint_control[i]>0 ? max_acceleration[i] : -max_acceleration[i];
         }
+        #ifdef OLD_CONTROL
+            publisher_->publish(message);
+            return;
+        #endif
 
 
         if(!links_init()) return; //Links not ready
