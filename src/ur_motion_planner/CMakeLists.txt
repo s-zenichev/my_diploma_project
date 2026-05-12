@@ -11,6 +11,7 @@ find_package(rclcpp_action REQUIRED)
 find_package(control_msgs REQUIRED)  
 find_package(trajectory_msgs REQUIRED)  
 find_package(std_msgs REQUIRED)
+find_package(orocos_kdl REQUIRED)
 
 ament_package()
 
@@ -29,6 +30,7 @@ ament_target_dependencies(motion_planner
   trajectory_msgs 
   std_msgs
 )
+target_link_libraries(motion_planner ${orocos_kdl_LIBRARIES})
 
 install(TARGETS motion_planner DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY config DESTINATION share/${PROJECT_NAME})

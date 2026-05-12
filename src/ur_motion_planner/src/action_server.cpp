@@ -7,6 +7,7 @@
 #include <memory>
 #include <thread>
 #include <mutex>
+#include <kdl/velocityprofile_trap.hpp>
 
 using FollowJointTrajectory = control_msgs::action::FollowJointTrajectory;
 using GoalHandle = rclcpp_action::ServerGoalHandle<FollowJointTrajectory>;
@@ -39,6 +40,7 @@ public:
             std::chrono::milliseconds(10), std::bind(&MyTrajectoryActionServer::execute, this));
     timer_->cancel();
 
+    for(int i = 0; i<6; i++)profile[i].SetMax(2.0, 10.0);
     RCLCPP_INFO(this->get_logger(), "Action server ready.");
   }
 
@@ -85,6 +87,11 @@ private:
             }
         }
 
+        for(int i=0; i<6; i++){
+            rclcpp::Duration duration_wrapper(trajectory->points.back().time_from_start);
+            profile[i].SetProfileDuration(trajectory->points[0].positions[joint_num[i]], trajectory->points.back().positions[joint_num[i]], duration_wrapper.seconds());
+        }
+
         // Start from the beginning
         start_time = this->now();
         interp_index = 0;
@@ -98,7 +105,6 @@ private:
         rclcpp::Duration elapsed = this->now() - start_time;
         double t = elapsed.seconds(); // текущее время от начала траектории (сек)
         int arr_size = std::size(trajectory->points);
-
         while(interp_index < arr_size-1){
             rclcpp::Duration time_from_start_next(trajectory->points[interp_index+1].time_from_start);
             if(t < time_from_start_next.seconds()) break;
@@ -125,18 +131,9 @@ private:
         }
         else{
             for(int i=0; i<6; i++){
-                rclcpp::Duration time_next(trajectory->points[interp_index+1].time_from_start);
-                rclcpp::Duration time_prev(trajectory->points[interp_index].time_from_start);
-                double interval = time_next.seconds() - time_prev.seconds();
-                double k = (t - time_prev.seconds())/interval;
+                msg.data[i] = profile[i].Pos(t);
 
-                msg.data[i] = trajectory->points[interp_index].positions[joint_num[i]];
-                msg.data[i] += (trajectory->points[interp_index+1].positions[joint_num[i]] -
-                                trajectory->points[interp_index].positions[joint_num[i]])*k;
-
-                msg.data[i+6] = trajectory->points[interp_index].velocities[joint_num[i]];
-                msg.data[i+6] += (trajectory->points[interp_index+1].velocities[joint_num[i]] -
-                                trajectory->points[interp_index].velocities[joint_num[i]])*k;
+                msg.data[i+6] = profile[i].Vel(t);
             }
 
             publisher_->publish(msg);
@@ -151,6 +148,7 @@ private:
     std::shared_ptr<FollowJointTrajectory::Result> result_;
     rclcpp::TimerBase::SharedPtr timer_;
     rclcpp::Publisher<std_msgs::msg::Float64MultiArray>::SharedPtr publisher_;
+    KDL::VelocityProfile_Trap profile[6];
 };
 
 
