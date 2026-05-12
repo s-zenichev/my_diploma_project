@@ -8,10 +8,10 @@
 #include <iostream>
 
 // Filter time constant, ms
-#define TIME_CONST 3.0
+#define TIME_CONST 0.0
 
 #define SIGN(x) ((x) < 0 ? -1 : 1)
-#undef NO_FRICTION
+#define NO_FRICTION
 
 using std::placeholders::_1;
 
