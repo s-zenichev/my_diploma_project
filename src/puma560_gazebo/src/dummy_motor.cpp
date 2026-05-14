@@ -24,11 +24,11 @@ const std::string joint_name[] = {"shoulder_pan_joint",
 int joint_num[] = {0, 1, 2, 3, 4, 5};
 
 // Friction parameters
-double T_brk[] = {0.5, 0.5, 0.5, 0.15, 0.15, 0.15};
-double T_c[] = {0.4, 0.4, 0.4, 0.1, 0.1, 0.1};
+double T_brk[] = {0.5, 0.5, 0.5, 0.15, 0.05, 0.0};
+double T_c[] = {0.4, 0.4, 0.4, 0.1, 0.03, 0.0};
 double omega_th[] = {0.01, 0.01, 0.01, 0.01, 0.01, 0.01};
-double C[] = {1.5, 1.5, 1.5, 1.5, 1.5, 1.5};
-double Fr[] = {0.06, 0.06, 0.06, 0.06, 0.06, 0.06}; 
+double C[] = {1.5, 1.5, 1.5, 1.5, 0.5, 0.0};
+double Fr[] = {0.06, 0.06, 0.06, 0.06, 0.02, 0.0}; 
 
 class DummyMotor : public rclcpp::Node
 {
