@@ -98,7 +98,7 @@ private:
             if(position_control){
                 eps = joint_desired_position[i] - joint_position[i];
                 double _desired_speed = position_controller[i].control(eps) 
-                                        + joint_desired_speed[i] - joint_speed[i]; // Feedforward
+                                        + joint_desired_speed[i]; // Feedforward
                 eps = _desired_speed - joint_speed[i];
                 debug_message.data[i] = _desired_speed;
             }
